@@ -9,8 +9,4 @@ PyMySQL==1.0.2
 SQLAlchemy==1.4.29
 Werkzeug==2.0.2
 
-pillow
-piexif
-numpy
-scikit-learn
-matplotlib
+
