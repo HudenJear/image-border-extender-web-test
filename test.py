@@ -34,12 +34,22 @@ def test_image_upload():
         # 保存返回的图片
         with open('processed_image.jpg', 'wb') as f:
             f.write(response.content)
-        print("图片已保存为 processed_image.jpg")
+        print(response.content,"图片已保存为 processed_image.jpg")
         
         # 可以用PIL打开查看图片信息
         img = Image.open(io.BytesIO(response.content))
         print("图片大小:", img.size)
         print("图片格式:", img.format)
+    elif  response.status_code == 200 and response.json().get('code') == 0:
+        result = response.json()
+        print(result)
+        print("处理后的图片URL:", result['data']['image_url'])
+        print("处理信息:", result['data']['res_info'])
+        image_response = requests.get(result['data']['image_url'])
+        with open('downloaded_image.jpg', 'wb') as f:
+            # print(image_response.content)
+            f.write(image_response.content)
+        print("图片已保存为 downloaded_image.jpg")
     else:
         # 如果是错误响应
         try:
@@ -58,7 +68,14 @@ def test_numbers():
     response = requests.post(url, json=body, headers=headers)
     print(response.json())
 
+def test_static():
+    url = 'http://127.0.0.1:8000/debug_static'
+    response = requests.get(url)
+    print(response.text)
+
 if __name__ == "__main__":
     test_numbers()
+    
     test_image_upload()
+    test_static()
     

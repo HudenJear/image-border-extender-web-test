@@ -7,7 +7,8 @@ import config
 pymysql.install_as_MySQLdb()
 
 # 初始化web应用
-app = Flask(__name__, instance_relative_config=True)
+# app = Flask(__name__, instance_relative_config=True)
+app = Flask(__name__, instance_relative_config=True,static_folder='static',static_url_path='/static')
 app.config['DEBUG'] = config.DEBUG
 
 # 设定数据库链接
