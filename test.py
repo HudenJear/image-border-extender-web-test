@@ -34,7 +34,7 @@ def test_image_upload():
         # 保存返回的图片
         with open('processed_image.jpg', 'wb') as f:
             f.write(response.content)
-        print(response.content,"图片已保存为 processed_image.jpg")
+        # print(response.content,"图片已保存为 processed_image.jpg")
         
         # 可以用PIL打开查看图片信息
         img = Image.open(io.BytesIO(response.content))
@@ -75,7 +75,7 @@ def test_static():
 
 if __name__ == "__main__":
     test_numbers()
-    
+
     test_image_upload()
-    test_static()
+    # test_static()
     
