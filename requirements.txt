@@ -10,3 +10,7 @@ SQLAlchemy==1.4.29
 Werkzeug==2.0.2
 
 
+pillow >=11.1.0
+piexif
+numpy
+# scikit-learn

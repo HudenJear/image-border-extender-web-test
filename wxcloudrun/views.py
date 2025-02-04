@@ -1,9 +1,16 @@
 from datetime import datetime
-from flask import render_template, request
+from flask import render_template, request, send_file
 from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
+from PIL import Image,ImageDraw,ImageFont,ImageOps
+from PIL.ExifTags import TAGS
+import piexif
+import  os,glob,io
+import numpy as np
+import json
+from .add_bd import rotate_image_90_no_crop, process_one_image
 
 
 @app.route('/')
@@ -12,13 +19,6 @@ def index():
     :return: 返回index页面
     """
     return render_template('index.html')
-
-@app.route('/api/dummy',methods=['Image'])
-def dummy():
-    """
-    :return: 返回index页面
-    """
-    return render_template('dummy.html')
 
 
 @app.route('/api/count', methods=['POST'])
@@ -101,3 +101,59 @@ def factorial():
         result *= i
 
     return make_succ_response(result)
+
+
+@app.route('/api/image_process', methods=['POST'])
+def image_process():
+    """
+    处理一张图片
+    :return: 处理后的图片
+    """
+    # 获取请求体参数
+
+    # params = request.get_json()
+    files = request.files
+    # 检查img参数
+    if 'image' not in files:
+        return make_err_response('没有收到图片')
+    elif files['image'].filename == '':
+            return make_err_response('没有收到图片')
+    else:
+        img_file = files['image']
+        try:
+            img = Image.open(img_file.stream).convert('RGB')
+            if 'control_params' in files:
+                params = json.loads(request.files['control_params'].read())
+                add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
+                max_length = params.get('max_length') if params.get('max_length') else 2400
+            else:
+                add_black_border = True
+                max_length = 2400
+
+            if 'infor_params' in files:
+
+              res_info='收到处理选项,开始默认处理模式'
+              params = json.loads(request.files['infor_params'].read())
+              
+              suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
+              
+              text = params.get('text') if params.get('text') else ' \n\n '
+              logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
+              img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
+
+            else:
+              res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
+              img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
+
+
+            img_io = io.BytesIO()
+            img.save(img_io, 'JPEG', quality=80)
+            img_io.seek(0)
+            return send_file(img_io,mimetype='image/jpeg',as_attachment=True,download_name='processed.jpg')
+
+            # return make_succ_response(image_info)
+        except Exception as e:
+          return make_err_response(f'图片处理失败: {e}')
+        
+
+    
