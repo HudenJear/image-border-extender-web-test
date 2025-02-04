@@ -163,25 +163,25 @@ def image_process():
               res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
               img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
 
-            # # 返回处理后的图片(图片流)
-            # img_io = io.BytesIO()
-            # img.save(img_io, 'JPEG', quality=80)
-            # img_io.seek(0)
-            # return send_file(img_io,mimetype='image/jpeg',as_attachment=True,download_name='processed.jpeg')
+            # 返回处理后的图片(图片流)
+            img_io = io.BytesIO()
+            img.save(img_io, 'JPEG', quality=80)
+            img_io.seek(0)
+            return send_file(img_io,mimetype='image/jpeg',as_attachment=True,download_name='processed.jpeg')
 
 
-            # 生成唯一的文件名
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            filename = f'processed_{timestamp}.jpg'
-            filepath = 'static/'+temp_image_dir+"/"+ filename
-            img.save(filepath, 'JPEG', quality=80)
-            image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
+            # # 生成唯一的文件名
+            # timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            # filename = f'processed_{timestamp}.jpg'
+            # filepath = 'static/'+temp_image_dir+"/"+ filename
+            # img.save(filepath, 'JPEG', quality=80)
+            # image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
             
 
-            return make_succ_response({
-            'image_url': image_url,
-            'res_info': res_info
-            })
+            # return make_succ_response({
+            # 'image_url': image_url,
+            # 'res_info': res_info
+            # })
 
         except Exception as e:
           return make_err_response(f'图片处理失败: {e}')
