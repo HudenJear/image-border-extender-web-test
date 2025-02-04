@@ -22,7 +22,7 @@ COPY . /app
 # 设定当前的工作目录
 WORKDIR /app
 
-# 安装gcc
+# 安装gcc新版本
 RUN apk add --update make automake gcc g++ subversion python3-dev
 
 # 安装依赖到指定的/install文件夹
