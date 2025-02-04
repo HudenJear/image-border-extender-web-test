@@ -23,7 +23,7 @@ COPY . /app
 WORKDIR /app
 
 # 安装gcc
-RUN apk add --no-cache gcc
+RUN apk add --update make automake gcc g++ subversion python3-dev
 
 # 安装依赖到指定的/install文件夹
 # 选用国内镜像源以提高下载速度
