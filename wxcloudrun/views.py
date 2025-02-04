@@ -167,7 +167,7 @@ def image_process():
             img_io = io.BytesIO()
             img.save(img_io, 'JPEG', quality=80)
             img_io.seek(0)
-            return send_file(img_io,mimetype='image/jpeg',as_attachment=True,download_name='processed.jpeg')
+            return send_file(img_io,mimetype='image/jpeg')
 
 
             # # 生成唯一的文件名
