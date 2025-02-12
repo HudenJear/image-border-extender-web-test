@@ -13,4 +13,4 @@ Werkzeug==2.0.2
 pillow
 piexif
 numpy
-# scikit-learn
+scikit-learn

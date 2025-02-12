@@ -3,10 +3,12 @@ from PIL import Image
 import io
 import json
 
+
+
 def test_image_upload():
     # API地址（假设Flask运行在本地8000端口）
-    # url = 'http://127.0.0.1:8000/api/image_process'
-    url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/image_process'
+    url = 'http://127.0.0.1:8000/api/image_process'
+    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/image_process'
     
     # 准备图片文件
     image_path = r'E:\帖子编辑2\摄影\松下100f2.8\mini\P1032386.jpg'  
@@ -15,11 +17,11 @@ def test_image_upload():
     # 准备文件和参数
     files = {
         'image': ('test.jpg', open(image_path, 'rb'), 'image/jpeg'),
-        # 'infor_params': ('params.json', json.dumps({
-        #     'text': ' \n\n ',
-        #     'logo_file': 'logos/hassel.jpg',
-        #     'suppli_info': ''
-        # }), 'application/json'),
+        'infor_params': ('params.json', json.dumps({
+            'text': ' \n\n ',
+            'logo_file': 'logos/hassel.jpg',
+            'suppli_info': ''
+        }), 'application/json'),
         'control_params': ('params.json', json.dumps({
             'max_length': 1200,
             'add_black_border': True
@@ -49,7 +51,7 @@ def test_image_upload():
         print("处理信息:", result['data']['res_info'])
         image_response = requests.get(result['data']['image_url'])
         with open('downloaded_image.jpg', 'wb') as f:
-            # print(image_response.content)
+            print(image_response.content)
             f.write(image_response.content)
         print("图片已保存为 downloaded_image.jpg")
     else:
@@ -60,8 +62,8 @@ def test_image_upload():
             print("Raw Response:", response.text)
 
 def test_numbers():
-    # url = 'http://127.0.0.1:8000/api/factorial'
-    url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/factorial'
+    url = 'http://127.0.0.1:8000/api/factorial'
+    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/factorial'
     headers = {
         'content-type': 'application/json'
     }
@@ -73,8 +75,8 @@ def test_numbers():
     print(response.json())
 
 def test_static():
-    # url = 'http://127.0.0.1:8000/debug_static'
-    url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/debug_static'
+    url = 'http://127.0.0.1:8000/debug_static'
+    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/debug_static'
     response = requests.get(url)
     print(response.text)
 
@@ -83,5 +85,5 @@ if __name__ == "__main__":
     test_numbers()
 
     test_image_upload()
-    # test_static()
+    test_static()
     

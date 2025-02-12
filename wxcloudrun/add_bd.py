@@ -2,7 +2,7 @@ from PIL import Image,ImageDraw,ImageFont,ImageOps
 from PIL.ExifTags import TAGS
 import piexif
 import numpy as np
-
+from .color_extract import extract_main_colors
 
 
 
@@ -206,15 +206,15 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
     draw.text(posi, text_2, fill=(0, 0, 0), font=font)
     # text2 = "\nShot in Somewhere on the earth."
 
-    # # add main_color
-    # main_c=extract_main_colors(img,num_colors=4)
-    # color_image = np.zeros((int(0.8* font_size), int(15*font_size), 3), dtype=int)
-    # block_width = color_image.shape[1] // len(main_c) +1
-    # for i, color in enumerate(main_c):
-    #     color_image[:, i * block_width:(i + 1) * block_width] = color
-    # color_pad=Image.fromarray(color_image.astype('uint8'))
-    # posi_mc=(int(exterior*1.01), int(2 * exterior + new_height + 2 * border_size+3.0*font_size))
-    # background.paste(color_pad,posi_mc)
+    # add main_color
+    main_c=extract_main_colors(img,num_colors=4)
+    color_image = np.zeros((int(0.8* font_size), int(15*font_size), 3), dtype=int)
+    block_width = color_image.shape[1] // len(main_c) +1
+    for i, color in enumerate(main_c):
+        color_image[:, i * block_width:(i + 1) * block_width] = color
+    color_pad=Image.fromarray(color_image.astype('uint8'))
+    posi_mc=(int(exterior*1.01), int(2 * exterior + new_height + 2 * border_size+3.0*font_size))
+    background.paste(color_pad,posi_mc)
 
     # add supplementary_line in the last line
     if suppli_line:
