@@ -4,7 +4,7 @@ from wxcloudrun import app
 
 # local test
 if len(sys.argv) < 3:
-    sys.argv = [sys.argv[0], '127.0.0.1', '8000']
+    sys.argv = [sys.argv[0], '192.168.50.37', '5000']
 
 
 # 启动Flask Web服务

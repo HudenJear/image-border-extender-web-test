@@ -134,7 +134,7 @@ def image_upload():
     """
     # 获取请求体参数
     # 确保 tempimage 目录存在
-    os.makedirs('static/'+temp_image_dir, exist_ok=True)
+    os.makedirs('wxcloudrun/static/'+temp_image_dir, exist_ok=True)
 
     # params = request.get_json()
     logging.info(request.files)
@@ -150,114 +150,78 @@ def image_upload():
             return make_err_response('没有收到图片')
     else:
         img_file = files['image']
+        # logging.info(img_file.stream)
         try:
+            img_file.stream.seek(0)
             img = Image.open(img_file.stream).convert('RGB')
+        except Exception as e:
+            logging.info(e)
+            return make_err_response(f'图片加载失败: {e}')
+        try:
+            #set default control parameters
+            add_black_border = True
+            max_length = 2400
+            extend_to_square=False
             if 'control_params' in request.form:
                 params = json.loads(request.form.get('control_params', '{}'))
-                add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
-                max_length = params.get('max_length') if params.get('max_length') else 2400
+                use_control_option=params.get('use_control_option') if params.get('use_control_option') else False
+                if use_control_option:
+                  logging.info('收到控制参数，使用控制参数覆盖默认设定')
+                  add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
+                  max_length = params.get('max_length') if params.get('max_length') else 2400
+                  extend_to_square=params.get('extend_to_square') if params.get('extend_to_square') else False
+                else:
+                  logging.info('不使用控制参数')
             else:
-                add_black_border = True
-                max_length = 2400
+                logging.info('未收到控制参数，不使用控制参数')
 
+            #set default information
+            text=' \n\n '
+            logo_file='logos/hassel.jpg'
+            suppli_info=' '
             if 'infor_params' in request.form:
-
-              res_info='收到处理选项,开始默认处理模式'
               params = json.loads(request.form.get('infor_params', '{}'))
-              
-              suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
-              
-              text = params.get('text') if params.get('text') else ' \n\n '
-              logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
-              img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
+              use_info_option=params.get('use_info_option') if params.get('use_info_option') else False
+              if use_info_option:
+                res_info='收到处理选项,开始默认处理模式'
+                logging.info(res_info)
+                suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
+                text = params.get('text') if params.get('text') else ' \n\n '
+                logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
+              # img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
+              else:
+                  res_info='不使用信息参数'
+                  logging.info(res_info)
+                  text=''
+                  logo_file=''
+                  suppli_info=''
 
             else:
               res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
-              img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
+              logging.info(res_info)
+              text=''
+              logo_file=''
+              suppli_info=''
+              
+        except Exception as e:
+            logging.info(e)
 
-            
+            return make_err_response(f'信息处理失败: {e}')
+        try:
+            img=process_one_image(img,text,logo_file,suppli_info,max_length=max_length,add_black_border=add_black_border,square=extend_to_square)
             # 微信小程序无法接收二进制文件流，这是因为uploadfile和request.files之间的区别导致的，这个问题时微信自己的api限制，并不是本程序的问题
             # # 返回处理后的图片(图片流)
             # img_io = io.BytesIO()
             # img.save(img_io, 'JPEG', quality=80)
             # img_io.seek(0)
             # return send_file(img_io,mimetype='image/jpeg')
-
-
-            # 生成唯一的文件名
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            filename = f'processed_{timestamp}.jpg'
-            filepath = 'static/'+temp_image_dir+"/"+ filename
-            img.save(filepath, 'JPEG', quality=80)
-            image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
-            
-
-            return make_succ_response({
-            'image_url': image_url,
-            'res_info': res_info
-            })
-
         except Exception as e:
           return make_err_response(f'图片处理失败: {e}')
-
-
-
-@app.route('/api/image_process', methods=['POST'])
-def image_process():
-    """
-    处理一张图片
-    :return: 处理后的图片
-    """
-    # 获取请求体参数
-    # 确保 tempimage 目录存在
-    os.makedirs('static/'+temp_image_dir,exist_ok=True)
-
-    # params = request.get_json()
-    logging.info(request.files)
-    files = request.files
-    # 检查img参数
-    if 'image' not in files:
-        return make_err_response('没有收到图片')
-    elif files['image'].filename == '':
-            return make_err_response('没有收到图片')
-    else:
-        img_file = files['image']
         try:
-            img = Image.open(img_file.stream).convert('RGB')
-            if 'control_params' in files:
-                params = json.loads(request.files['control_params'].read())
-                add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
-                max_length = params.get('max_length') if params.get('max_length') else 2400
-            else:
-                add_black_border = True
-                max_length = 2400
-
-            if 'infor_params' in files:
-
-              res_info='收到处理选项,开始默认处理模式'
-              params = json.loads(request.files['infor_params'].read())
-              
-              suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
-              
-              text = params.get('text') if params.get('text') else ' \n\n '
-              logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
-              img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
-
-            else:
-              res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
-              img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
-
-            # # 返回处理后的图片(图片流)
-            # img_io = io.BytesIO()
-            # img.save(img_io, 'JPEG', quality=80)
-            # img_io.seek(0)
-            # return send_file(img_io,mimetype='image/jpeg')
-
-
             # 生成唯一的文件名
             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
             filename = f'processed_{timestamp}.jpg'
-            filepath = 'static/'+temp_image_dir+"/"+ filename
+            filepath = 'wxcloudrun/static/'+temp_image_dir+"/"+ filename
             img.save(filepath, 'JPEG', quality=80)
             image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
             
@@ -268,7 +232,77 @@ def image_process():
             })
 
         except Exception as e:
-          return make_err_response(f'图片处理失败: {e}')
+          return make_err_response(f'图片保存失败: {e}')
+
+
+
+# @app.route('/api/image_process', methods=['POST'])
+# def image_process():
+#     """
+#     处理一张图片
+#     :return: 处理后的图片
+#     """
+#     # 获取请求体参数
+#     # 确保 tempimage 目录存在
+#     os.makedirs('static/'+temp_image_dir,exist_ok=True)
+
+#     # params = request.get_json()
+#     logging.info(request.files)
+#     files = request.files
+#     # 检查img参数
+#     if 'image' not in files:
+#         return make_err_response('没有收到图片')
+#     elif files['image'].filename == '':
+#             return make_err_response('没有收到图片')
+#     else:
+#         img_file = files['image']
+#         try:
+#             img = Image.open(img_file.stream).convert('RGB')
+#             if 'control_params' in files:
+#                 params = json.loads(request.files['control_params'].read())
+#                 add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
+#                 max_length = params.get('max_length') if params.get('max_length') else 2400
+#             else:
+#                 add_black_border = True
+#                 max_length = 2400
+
+#             if 'infor_params' in files:
+
+#               res_info='收到处理选项,开始默认处理模式'
+#               params = json.loads(request.files['infor_params'].read())
+              
+#               suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
+              
+#               text = params.get('text') if params.get('text') else ' \n\n '
+#               logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
+#               img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
+
+#             else:
+#               res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
+#               img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
+
+#             # # 返回处理后的图片(图片流)
+#             # img_io = io.BytesIO()
+#             # img.save(img_io, 'JPEG', quality=80)
+#             # img_io.seek(0)
+#             # return send_file(img_io,mimetype='image/jpeg')
+
+
+#             # 生成唯一的文件名
+#             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+#             filename = f'processed_{timestamp}.jpg'
+#             filepath = 'static/'+temp_image_dir+"/"+ filename
+#             img.save(filepath, 'JPEG', quality=80)
+#             image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
+            
+
+#             return make_succ_response({
+#             'image_url': image_url,
+#             'res_info': res_info
+#             })
+
+#         except Exception as e:
+#           return make_err_response(f'图片处理失败: {e}')
         
 
     

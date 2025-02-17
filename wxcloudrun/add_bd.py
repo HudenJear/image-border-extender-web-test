@@ -3,6 +3,13 @@ from PIL.ExifTags import TAGS
 import piexif
 import numpy as np
 from .color_extract import extract_main_colors
+import logging
+
+logging.basicConfig(
+    format='[%(asctime)s] %(message)s',
+    level=logging.INFO,
+    handlers=[logging.StreamHandler()]  # 输出到控制台
+)
 
 
 
@@ -94,13 +101,14 @@ def rotate_image_90_no_crop(image_data,reverse=False):
     return cropped_image
 
 
-def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,add_black_border=True):
+def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,add_black_border=True,square=False):
     update_tgt_size(max_length,add_black_border)
     img = img_input
     suppli_line=suppli_info
+    # logging.log("图片加载成功，开始处理")
     # if the image is auto-detected, the exif will be extracted
     if text=='':
-
+        
         # exif=img.info['exif']
         exif_data = img.getexif()
         camera_mk=None
@@ -191,7 +199,7 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
     draw = ImageDraw.Draw(background)
 
     # add text 1 the camera
-    font = ImageFont.truetype("arial.ttf", font_size)
+    font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", font_size)
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2*border_size)
     text_1=text.split('\n\n')[0]
     draw.text(posi, text_1, fill=(0, 0, 0), font=font)
@@ -200,7 +208,7 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
         draw.text((posi[0] + offset[0], posi[1] + offset[1]), text_1, font=font, fill=(0, 0, 0))
 
     # add text 2 the lens
-    font = ImageFont.truetype("arial.ttf", int(font_size*0.9))
+    font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size*0.9))
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size+1.6*font_size)
     text_2 = text.split('\n\n')[1]
     draw.text(posi, text_2, fill=(0, 0, 0), font=font)
@@ -218,7 +226,7 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
 
     # add supplementary_line in the last line
     if suppli_line:
-        font = ImageFont.truetype("arial.ttf", int(font_size * 0.8))
+        font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size * 0.8))
         posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size + 4.2 * font_size)
         draw.text(posi, suppli_line, fill=(80, 80, 80), font=font)
 
@@ -228,6 +236,17 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
     # dir_p=os.path.split(os.path.split(img_path)[0])[1]
     # sav_path=os.path.join(tgt, os.path.splitext(os.path.split(img_path)[1])[0] +'_'+dir_p+ f".jpg")
     # 保存最终结果os.path.join(tgt, os.path.splitext(os.path.split(img_path)[1])[0] + f".jpg")
+
+    if square:
+        # 创建正方形背景
+        w, h = background.size
+        square_size = max(w, h)
+        square_bg = Image.new('RGB', (square_size, square_size), (255, 255, 255))
+        # 计算粘贴位置
+        paste_x = (square_size - w) // 2
+        paste_y = (square_size - h) // 2
+        square_bg.paste(background, (paste_x, paste_y))
+        background = square_bg
 
     return background
 
