@@ -30,6 +30,7 @@ text_dict={
     'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
     'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1,7", 'logos/Minolta.jpg'],
     'auto_detect':['',''],
+    'infinity_nikki': ['Miracle Continent\n\n Photogragher: Fay','logos/infinity-nikki.jpg'],
 
 }
 logo_dict={

@@ -15,14 +15,20 @@ def extract_main_colors(image, num_colors=3):
     # 将图像数据重塑为二维数组
     pixels = image_np.reshape(-1, 3)
 
-    # 使用KMeans聚类算法提取主要颜色
-    kmeans = KMeans(n_clusters=num_colors, max_iter=1000, n_init=1)
+    # 使用KMeans聚类算法提取主要颜色+1 用于筛除不那么重要的主要颜色
+    kmeans = KMeans(n_clusters=num_colors+1, max_iter=10000000, n_init=1)
     kmeans.fit(pixels)
 
     # 获取聚类中心（主要颜色）
     main_colors = kmeans.cluster_centers_.astype(int)
+    sort_ind=main_colors.sum(axis=1).argsort()[::-1]
+    # np.argsort
+    main_colors=main_colors[sort_ind]
+    # print(main_colors[:-1])
+    
 
-    return main_colors
+
+    return main_colors[:-1]
 
 
 def plot_colors(colors):
