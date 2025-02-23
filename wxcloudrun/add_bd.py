@@ -11,7 +11,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]  # 输出到控制台
 )
 
-
+using_font=r'fonts\LXGWBright-Italic.ttf'
 
 # suppli_info="Kodak Vision3 5219 500T 120"
 # suppli_info="Kodak Vision3 5207 250T 120"
@@ -142,7 +142,9 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
                 # print(F_value)
                 ISO_value=exif_dict['Exif'][piexif.ExifIFD.ISOSpeedRatings]
                 ss_value=exif_dict['Exif'][piexif.ExifIFD.ExposureTime]
-                ss_text='S: '+str(ss_value[0])+"/"+str(ss_value[1])+'s' if ss_value[0]/ss_value[1] <1 else 'S: '+str(ss_value[0])+'s'
+                # ss_text='S: '+str(ss_value[0])+"/"+str(ss_value[1])+'s' if ss_value[0]/ss_value[1] <1 else 'S: '+str(ss_value[0])+'s'
+                ss_value=int(ss_value[1])/int(ss_value[0])
+                ss_text='S: '+'1'+"/"+str(int(ss_value))+'s' if ss_value >1 else 'S: '+str(int(1/ss_value))+'s'
 
                 # print(str(exif_dict['Exif'][piexif.ExifIFD.LensModel]))
                 text=text+exif_dict['Exif'][piexif.ExifIFD.LensModel].decode('utf-8')
@@ -200,18 +202,18 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
     draw = ImageDraw.Draw(background)
 
     # add text 1 the camera
-    font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", font_size)
+    font = ImageFont.truetype(using_font, font_size)
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2*border_size)
-    text_1=text.split('\n\n')[0]
+    text_1=text.split('\n\n')[0].strip('\0')
     draw.text(posi, text_1, fill=(0, 0, 0), font=font)
     bold_offset = 1 # make it bold
     for offset in [(0, 0), (bold_offset, 0), (0, bold_offset), (bold_offset, bold_offset)]:
         draw.text((posi[0] + offset[0], posi[1] + offset[1]), text_1, font=font, fill=(0, 0, 0))
 
     # add text 2 the lens
-    font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size*0.9))
+    font = ImageFont.truetype(using_font, int(font_size*0.9))
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size+1.6*font_size)
-    text_2 = text.split('\n\n')[1]
+    text_2 = text.split('\n\n')[1].strip('\0')
     draw.text(posi, text_2, fill=(0, 0, 0), font=font)
     # text2 = "\nShot in Somewhere on the earth."
 
@@ -227,9 +229,9 @@ def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,ad
 
     # add supplementary_line in the last line
     if suppli_line:
-        font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size * 0.8))
+        font = ImageFont.truetype(using_font, int(font_size * 0.8))
         posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size + 4.2 * font_size)
-        draw.text(posi, suppli_line, fill=(80, 80, 80), font=font)
+        draw.text(posi, suppli_line.strip('\0'), fill=(80, 80, 80), font=font)
 
     # rotate back and save
     if rota:

@@ -6,12 +6,14 @@ FROM ubuntu:20.04
 # 容器默认时区为UTC，如需使用上海时间请启用以下时区设置命令
 
 # 使用 HTTPS 协议访问容器云调用证书安装
-RUN apt-get update && apt-get install -y ca-certificates
+
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.tencent.com/g' /etc/apt/sources.list \
 && sed -i 's/security.ubuntu.com/mirrors.tencent.com/g' /etc/apt/sources.list 
 
-RUN apt-get update && apt-get install -y python3 python3-pip 
+RUN apt-get update && apt-get install -y ca-certificates
+
+RUN apt-get install -y python3 python3-pip 
 
 # 拷贝当前项目到/app目录下（.dockerignore中文件除外）
 COPY . /app

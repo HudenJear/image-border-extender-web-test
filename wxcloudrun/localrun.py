@@ -30,6 +30,8 @@ font_dict={
     'en': r'fonts\OPPOSans-Medium.ttf',
 }
 
+using_font=r'fonts\LXGWBright-Italic.ttf'
+
 
 
 
@@ -165,13 +167,16 @@ def process_one_image(img_path,text,logo_file,square=False):
                 # print(F_value)
                 ISO_value=exif_dict['Exif'][piexif.ExifIFD.ISOSpeedRatings]
                 ss_value=exif_dict['Exif'][piexif.ExifIFD.ExposureTime]
+                
                 ss_text='S: '+str(ss_value[0])+"/"+str(ss_value[1])+'s' if ss_value[0]/ss_value[1] <1 else 'S: '+str(ss_value[0])+'s'
+                ss_value=int(ss_value[1])/int(ss_value[0])
+                ss_text='S: '+'1'+"/"+str(int(ss_value))+'s' if ss_value >1 else 'S: '+str(int(1/ss_value))+'s'
 
                 # print(str(exif_dict['Exif'][piexif.ExifIFD.LensModel]))
                 text=text+exif_dict['Exif'][piexif.ExifIFD.LensModel].decode('utf-8')
                 # camera_m=exif_data['Make']
                 # suppli_line='Focal: '+str(int(focal_length[0]/focal_length[1]))+'mm    '+'A: F'+str(F_value[0]/F_value[1]).replace('.',',')+'    '+'ISO: '+str(ISO_value)+'    '+ss_text
-                suppli_line='Focal: '+str(int(focal_length[0]/focal_length[1]))+'mm  '+'A: F'+str(F_value[0]/F_value[1])+'  '+'ISO: '+str(ISO_value)+'  '+ss_text
+                suppli_line='Focal: '+str(int(focal_length[0]/focal_length[1]))+'mm    '+'A: F'+str(F_value[0]/F_value[1])+'    '+'ISO: '+str(ISO_value)+'    '+ss_text
 
 
 
@@ -227,22 +232,26 @@ def process_one_image(img_path,text,logo_file,square=False):
     draw = ImageDraw.Draw(background)
 
     # add text 1 the camera
-    # font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", font_size)
+    # font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", font_size) # arial.ttf
+    font = ImageFont.truetype(using_font, font_size)
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2*border_size)
-    text_1=text.split('\n\n')[0]
-    # draw.text(posi, text_1, fill=(0, 0, 0), font=font)
-    draw_text_with_fallback(draw, posi, text_1)
+    text_1=text.split('\n\n')[0].strip('\0')
+    draw.text(posi, text_1, fill=(0, 0, 0), font=font)
+    # draw_text_with_fallback(draw, posi, text_1)
     bold_offset = 1 # make it bold
     for offset in [(0, 0), (bold_offset, 0), (0, bold_offset), (bold_offset, bold_offset)]:
-        # draw.text((posi[0] + offset[0], posi[1] + offset[1]), text_1, font=font, fill=(0, 0, 0))
-        draw_text_with_fallback(draw, (posi[0] + offset[0], posi[1] + offset[1]), text_1)
+        draw.text((posi[0] + offset[0], posi[1] + offset[1]), text_1, font=font, fill=(0, 0, 0))
+        # draw_text_with_fallback(draw, (posi[0] + offset[0], posi[1] + offset[1]), text_1)
 
     # add text 2 the lens
-    # font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size*0.9))
+    font = ImageFont.truetype(using_font, int(font_size*0.9))
     posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size+1.6*font_size)
-    text_2 = text.split('\n\n')[1]
-    draw_text_with_fallback(draw, posi, text_2)
-    # draw.text(posi, text_2, fill=(0, 0, 0), font=font)
+    
+    text_2 = text.split('\n\n')[1].strip('\0')
+    # ascii_codes = [ord(c) for c in text_2]
+    # print(ascii_codes)
+    # draw_text_with_fallback(draw, posi, text_2)
+    draw.text(posi, text_2, fill=(0, 0, 0), font=font)
     # text2 = "\nShot in Somewhere on the earth."
 
     # add main_color
@@ -257,16 +266,16 @@ def process_one_image(img_path,text,logo_file,square=False):
 
     # add supplementary_line in the last line
     if suppli_line:
-        # font = ImageFont.truetype("fonts/OPPOSans-Medium.ttf", int(font_size * 0.8))
+        font = ImageFont.truetype(using_font, int(font_size * 0.8))
         posi = (int(exterior*1.01), 2 * exterior + new_height + 2 * border_size + 4.2 * font_size)
-        # draw.text(posi, suppli_line, fill=(80, 80, 80), font=font)
-        draw_text_with_fallback(draw, posi, suppli_line,(80, 80, 80))
+        draw.text(posi, suppli_line.strip('\0'), fill=(80, 80, 80), font=font)
+        # draw_text_with_fallback(draw, posi, suppli_line,(80, 80, 80))
 
     # rotate back and save
     if rota:
         background=rotate_image_90_no_crop(background,reverse=False)
     dir_p=os.path.split(os.path.split(img_path)[0])[1]
-    sav_path=os.path.join(tgt, os.path.splitext(os.path.split(img_path)[1])[0] +'_'+dir_p+ f".jpg")
+    sav_path=os.path.join(tgt, os.path.splitext(os.path.split(img_path)[1])[0] +'_'+dir_p+ f"-testfont1.jpg")
     # 保存最终结果os.path.join(tgt, os.path.splitext(os.path.split(img_path)[1])[0] + f".jpg")
 
     if square:

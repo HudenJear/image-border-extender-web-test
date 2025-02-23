@@ -1,0 +1,44 @@
+{
+  "containers": [
+    {
+      "name": "image-border-extender-web-test",
+      "containerId": "d722e7706bbfd2031cf2783d14898af374b585c7b9d004e9abc7a8a47761caa2",
+      "domain": "",
+      "ip": ""
+    }
+  ],
+  "config": {
+    "image-border-extender-web-test": {
+      "containerPort": 80,
+      "minNum": 0,
+      "maxNum": 5,
+      "cpu": 2,
+      "mem": 4,
+      "policyType": "cpu",
+      "policyThreshold": 60,
+      "policyDetails": [
+        {
+          "PolicyType": "cpu",
+          "PolicyThreshold": 60
+        },
+        {
+          "PolicyType": "mem",
+          "PolicyThreshold": 60
+        }
+      ],
+      "envParams": {
+        "MYSQL_USERNAME": "",
+        "MYSQL_PASSWORD": "",
+        "MYSQL_ADDRESS": ""
+      },
+      "customLogs": "stdout",
+      "initialDelaySeconds": 2,
+      "dataBaseName": "flask_demo",
+      "executeSQLs": [
+        "CREATE DATABASE IF NOT EXISTS flask_demo;",
+        "USE flask_demo;",
+        "CREATE TABLE IF NOT EXISTS `Counters` (`id` int(11) NOT NULL AUTO_INCREMENT, `count` int(11) NOT NULL DEFAULT 1, `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`)) ENGINE = InnoDB DEFAULT CHARSET = utf8;"
+      ]
+    }
+  }
+}
