@@ -5,8 +5,8 @@ import  os,glob
 from color_extract import  extract_main_colors
 import numpy as np
 
-src=r'E:\Image-border-extender本地图片目录\imgtoprocess'
-tgt=r'E:\Image-border-extender本地图片目录\imgdone'
+src=r'F:\Image-border-extender本地图片目录\imgtoprocess'
+tgt=r'F:\Image-border-extender本地图片目录\imgdone'
 tgt_size=2400
 ratio=0.9
 border_size=int(0.01*tgt_size)
@@ -23,8 +23,8 @@ make_img_square=False
 # suppli_info="Kodak EktarChrome 5294 100D 135"
 # suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info="FUJICHROME Provia 100f Daylight 120"
-# suppli_info="Lucky SHD400 B/W 120"
-suppli_info="FUJIFILM 400 (New) 135"
+suppli_info="Lucky SHD400 B/W FILM"
+# suppli_info="FUJIFILM 400 (New) 135"
 
 # suppli_info=None
 # suppli_info="Model: Nikki"
@@ -40,15 +40,16 @@ using_font=r'fonts\LXGWBright-Italic.ttf'
 
 
 text_dict={
-    'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3,5",'logos/hassel.jpg'],
+    'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3.5",'logos/hassel.jpg'],
     'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
-    'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1,4", 'logos/Olympus.jpg'],
-    'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2,8", 'logos/Olympus.jpg'],
+    'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1.4", 'logos/Olympus.jpg'],
+    'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2.8", 'logos/Olympus.jpg'],
     'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
     'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
-    'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1,7", 'logos/Minolta.jpg'],
+    'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1.7", 'logos/Minolta.jpg'],
     'auto_detect':['',''],
-    'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg']
+    'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg'],
+    'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
 
 }
 logo_dict={
@@ -65,7 +66,8 @@ logo_dict={
     'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
     'OLYMPUS CORPORATION': "logos/Olympus-new.png",
     'NIKON CORPORATION': "logos/Olympus-new.png",
-    'FUJIFILM': "logos/Olympus-new.png",
+    'FUJIFILM': "logos/fujifilm.jpg",
+    'Bronica': "logos/bronica.jpg",
 
 }
 

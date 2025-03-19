@@ -2,8 +2,10 @@ from PIL import Image,ImageDraw,ImageFont,ImageOps
 from PIL.ExifTags import TAGS
 import piexif
 import numpy as np
-from .color_extract import extract_main_colors
 import logging
+
+from .localrun import text_dict, logo_dict
+from .color_extract import extract_main_colors
 
 logging.basicConfig(
     format='[%(asctime)s] %(message)s',
@@ -21,35 +23,35 @@ suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info=None
 
 
-text_dict={
-    'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3,5",'logos/hassel.jpg'],
-    'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
-    'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1,4", 'logos/Olympus.jpg'],
-    'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2,8", 'logos/Olympus.jpg'],
-    'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
-    'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
-    'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1,7", 'logos/Minolta.jpg'],
-    'auto_detect':['',''],
-    'infinity_nikki': ['Miracle Continent\n\n Photogragher: Fay','logos/infinity-nikki.jpg'],
+# text_dict={
+#     'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3,5",'logos/hassel.jpg'],
+#     'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
+#     'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1,4", 'logos/Olympus.jpg'],
+#     'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2,8", 'logos/Olympus.jpg'],
+#     'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
+#     'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
+#     'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1,7", 'logos/Minolta.jpg'],
+#     'auto_detect':['',''],
+#     'infinity_nikki': ['Miracle Continent\n\n Photogragher: Fay','logos/infinity-nikki.jpg'],
 
-}
-logo_dict={
-'hassel_CF60':'logos/hassel.jpg',
-    'hassel_CF150': 'logos/hassel.jpg',
-    'olym_50':'logos/Olympus.jpg',
-    'olym_135': 'logos/Olympus.jpg',
-    'olym_2848': 'logos/Olympus.jpg',
-    'mamiya_six': 'logos/mamiya.jpg',
-    'minolta':'logos/Minolta.jpg',
-    'SONY':'logos/Sony-Alpha-Logo.png',
-    'Panasonic': 'logos/Panasonic-Lumix-Logo.jpg',
-    'Canon': "logos/canon-r-logo.jpg",
-    'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
-    'OLYMPUS CORPORATION': "logos/Olympus-new.png",
-    'NIKON CORPORATION': "logos/Olympus-new.png",
-    'FUJIFILM': "logos/Olympus-new.png",
+# }
+# logo_dict={
+# 'hassel_CF60':'logos/hassel.jpg',
+#     'hassel_CF150': 'logos/hassel.jpg',
+#     'olym_50':'logos/Olympus.jpg',
+#     'olym_135': 'logos/Olympus.jpg',
+#     'olym_2848': 'logos/Olympus.jpg',
+#     'mamiya_six': 'logos/mamiya.jpg',
+#     'minolta':'logos/Minolta.jpg',
+#     'SONY':'logos/Sony-Alpha-Logo.png',
+#     'Panasonic': 'logos/Panasonic-Lumix-Logo.jpg',
+#     'Canon': "logos/canon-r-logo.jpg",
+#     'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
+#     'OLYMPUS CORPORATION': "logos/Olympus-new.png",
+#     'NIKON CORPORATION': "logos/Olympus-new.png",
+#     'FUJIFILM': "logos/Olympus-new.png",
 
-}
+# }
 
 # def initializing_directories():
 #     if not os.path.exists(tgt):
