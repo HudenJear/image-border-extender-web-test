@@ -2,9 +2,10 @@
   "containers": [
     {
       "name": "image-border-extender-web-test",
-      "containerId": "d722e7706bbfd2031cf2783d14898af374b585c7b9d004e9abc7a8a47761caa2",
       "domain": "",
-      "ip": ""
+      "ip": "",
+      "mode": "compose",
+      "containerId": "6ec8e01d925a090320a99736953f4b71107cc0b3153da61a81c36a38b5281c5d"
     }
   ],
   "config": {

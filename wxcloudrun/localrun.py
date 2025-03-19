@@ -22,8 +22,11 @@ cc_name='Credit Name'
 # suppli_info="Kodak EktarChrome 5294 100D 135"
 # suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info="FUJICHROME Provia 100f Daylight 120"
+# suppli_info="Lucky SHD400 B/W 120"
+suppli_info="FUJIFILM 400 (New) 135"
+
 # suppli_info=None
-suppli_info="Model: Nikki"
+# suppli_info="Model: Nikki"
 
 font_dict={
     'zh': r'fonts\Noto Sans SC Medium.otf',

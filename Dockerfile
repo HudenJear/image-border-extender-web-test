@@ -8,8 +8,8 @@ FROM ubuntu:20.04
 # 使用 HTTPS 协议访问容器云调用证书安装
 
 
-RUN sed -i 's/archive.ubuntu.com/mirrors.tencent.com/g' /etc/apt/sources.list \
-&& sed -i 's/security.ubuntu.com/mirrors.tencent.com/g' /etc/apt/sources.list 
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+&& sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 
 
 RUN apt-get update && apt-get install -y ca-certificates
 
@@ -28,9 +28,10 @@ RUN apt-get install -y build-essential
 
 # 安装依赖到指定的/install文件夹
 # 选用国内镜像源以提高下载速度
-RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple \
-&& pip config set global.trusted-host mirrors.cloud.tencent.com \
-&& pip install --upgrade pip 
+# 设置pip阿里镜像
+RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple \
+&& pip config set global.trusted-host mirrors.aliyun.com \
+&& pip install --upgrade pip
 
 RUN pip install --user -r requirements.txt
 
@@ -41,3 +42,4 @@ EXPOSE 80
 # 执行启动命令
 # 写多行独立的CMD命令是错误写法！只有最后一行CMD命令会被执行，之前的都会被忽略，导致业务报错。
 CMD ["python3", "run.py", "0.0.0.0", "80"]
+
