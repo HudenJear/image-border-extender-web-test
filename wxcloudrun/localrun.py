@@ -5,8 +5,8 @@ import  os,glob
 from color_extract import  extract_main_colors
 import numpy as np
 
-src=r'F:\Image-border-extender本地图片目录\imgtoprocess'
-tgt=r'F:\Image-border-extender本地图片目录\imgdone'
+src=r'E:\Image-border-extender本地图片目录\imgtoprocess'
+tgt=r'E:\Image-border-extender本地图片目录\imgdone'
 tgt_size=2400
 ratio=0.9
 border_size=int(0.01*tgt_size)
@@ -15,6 +15,7 @@ exterior=int(0.03*tgt_size)
 infor_area=int(0.12*tgt_size)
 font_size=int(infor_area*0.2)
 cc_name='Credit Name'
+make_img_square=False
 
 
 # suppli_info="Kodak Vision3 5219 500T 120"
@@ -316,4 +317,4 @@ if __name__=='__main__':
             print(f'Images need to be processed in {dir_name} : {img_all}')
             for indx in range(len(img_all)):
                 print("\rProcessing line {}/{}...".format(indx+1, len(img_all)), end='', flush=True)
-                process_res = process_one_image(img_all[indx],text=text_line,logo_file=logo_path)
+                process_res = process_one_image(img_all[indx],text=text_line,logo_file=logo_path,square=make_img_square)
