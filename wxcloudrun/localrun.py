@@ -20,10 +20,11 @@ make_img_square=False
 
 # suppli_info="Kodak Vision3 5219 500T 120"
 # suppli_info="Kodak Vision3 5207 250T 120"
+suppli_info="Kodak ColorPlus 200 135"
 # suppli_info="Kodak EktarChrome 5294 100D 135"
 # suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info="FUJICHROME Provia 100f Daylight 120"
-suppli_info="Lucky SHD400 B/W FILM"
+# suppli_info="Lucky SHD400 B/W FILM"
 # suppli_info="FUJIFILM 400 (New) 135"
 
 # suppli_info=None
@@ -50,6 +51,8 @@ text_dict={
     'auto_detect':['',''],
     'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg'],
     'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
+    'Rollei': ['Rolleiflex Twin lens 3.5A \n\nCarl Zeiss Opton T* 75mm F3.5', "logos/Rollei.jpg"],
+
 
 }
 logo_dict={
@@ -68,35 +71,35 @@ logo_dict={
     'NIKON CORPORATION': "logos/Olympus-new.png",
     'FUJIFILM': "logos/fujifilm.jpg",
     'Bronica': "logos/bronica.jpg",
-
+    'Rollei': "logos/Rollei.jpg",
 }
 
 
 
-zh_font_in_use=ImageFont.truetype(font_dict['zh'], font_size)
-en_font_in_use=ImageFont.truetype(font_dict['en'], font_size)
+# zh_font_in_use=ImageFont.truetype(font_dict['zh'], font_size)
+# en_font_in_use=ImageFont.truetype(font_dict['en'], font_size)
 
-def draw_text_with_fallback(draw, pos, text, fill_color=(0, 0, 0),en_font=en_font_in_use, zh_font=zh_font_in_use):
-    """带字体回退的文本绘制
-    given by deepseek R1
-    """
-    x, y = pos
-    for char in text:
-        # 检查当前字体是否支持该字符
-        if ord(char) < 256:  # 简单判断ASCII字符
-            font = en_font
-            char_width = en_font.getlength(char)
-        else:
-            font = zh_font
-            char_width = zh_font.getlength(char)
+# def draw_text_with_fallback(draw, pos, text, fill_color=(0, 0, 0),en_font=en_font_in_use, zh_font=zh_font_in_use):
+#     """带字体回退的文本绘制
+#     given by deepseek R1
+#     """
+#     x, y = pos
+#     for char in text:
+#         # 检查当前字体是否支持该字符
+#         if ord(char) < 256:  # 简单判断ASCII字符
+#             font = en_font
+#             char_width = en_font.getlength(char)
+#         else:
+#             font = zh_font
+#             char_width = zh_font.getlength(char)
         
-        # 获取字符宽度
-        # bbox = font.getbbox(char)
-        # char_width = bbox[2] - bbox[0]
+#         # 获取字符宽度
+#         # bbox = font.getbbox(char)
+#         # char_width = bbox[2] - bbox[0]
         
-        # 绘制字符
-        draw.text((x, y), char, font=font, fill=fill_color)
-        x += char_width  # 移动绘制位置
+#         # 绘制字符
+#         draw.text((x, y), char, font=font, fill=fill_color)
+#         x += char_width  # 移动绘制位置
 
 
 
@@ -200,7 +203,7 @@ def process_one_image(img_path,text,logo_file,square=False):
     # print(img.height,img.width)
 
     # 计算要将原始图片粘贴到白色背景图上的位置,rotate or not
-    rota=True if img.width < img.height * 0.95 else False
+    rota=True if img.width < img.height * 0.90 else False
 
     if rota:
         img=rotate_image_90_no_crop(img,reverse=True)

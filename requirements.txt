@@ -14,3 +14,5 @@ pillow
 piexif
 numpy
 scikit-learn
+requests
+wxcloudsdk

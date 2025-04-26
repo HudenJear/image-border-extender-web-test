@@ -12,6 +12,24 @@ import numpy as np
 import json
 from .add_bd import rotate_image_90_no_crop, process_one_image
 import logging
+import requests
+from io import BytesIO
+from PIL import Image
+from .add_bd import rotate_image_90_no_crop  # 假设rotate_image_90_no_crop是用于旋转图片的函数
+
+import uuid
+from datetime import datetime
+
+# 微信云开发认证信息
+app_id = 'your_app_id'
+app_secret = 'your_app_secret'
+env_id = 'your_env_id'  # 例如 'test-123456'
+
+# 腾讯云认证信息
+secret_id = 'your_secret_id'
+secret_key = 'your_secret_key'
+region = 'your_region'  # 例如 'ap-guangzhou'
+bucket_name = 'your_bucket_name-123456789'  # 例如 'example-123456789'
 
 logging.basicConfig(
     format='[%(asctime)s] %(message)s',
@@ -30,10 +48,11 @@ temp_image_dir = 'temp_images'
 #     """
 #     return render_template('index.html')
 
-@app.route('/debug_static')
+@app.route('/debug_static', methods=['GET'])
 def debug_static():
     static_path = app.static_folder
-    return f"Static folder: {static_path}"
+    return make_succ_response(static_path)
+    # return f"Static folder: {static_path}"
 
 
 @app.route('/')
@@ -132,59 +151,48 @@ def factorial():
 def image_process():
     """
     处理一张图片
-    :return: 处理后的图片
+    :return: 处理后的图片URL
     """
     # 获取请求体参数
-    # 确保 tempimage 目录存在
-    os.makedirs('static/'+temp_image_dir,exist_ok=True)
+    os.makedirs('static/' + temp_image_dir, exist_ok=True)
 
-    # params = request.get_json()
-    logging.info(request.get_json())
     data_param = request.get_json()
+    logging.log(logging.INFO, data_param)
     # 检查img参数
     if 'image_file' not in data_param:
-        return make_err_response('没有收到图片')
-    elif data_param['image_file'].filename == '':
-            return make_err_response('没有收到图片')
+        return make_err_response('没有收到图片URL')
     else:
-        img_file = data_param['image_file']
+        image_url = data_param['image_file']
         try:
-            img = img_file
-            if 'control_params' in data_param:
-                params = json.loads(request.files['control_params'].read())
-                add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
-                max_length = params.get('max_length') if params.get('max_length') else 2400
-            else:
-                add_black_border = True
-                max_length = 2400
+            # 下载图片
+            response = requests.get(image_url)
+            response.raise_for_status()
+            img = Image.open(BytesIO(response.content))
 
-            if 'infor_params' in data_param:
+            # 处理图片（旋转90度）
+            img = rotate_image_90_no_crop(img)
 
-              res_info='收到处理选项,开始默认处理模式'
-              params = json.loads(request.files['infor_params'].read())
-              
-              suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
-              
-              text = params.get('text') if params.get('text') else ' \n\n '
-              logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
-              # img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
+            # 生成唯一的文件名
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            random_code = uuid.uuid4().hex[:8]  # 取前8位随机码
+            unique_filename = f"{timestamp}_{random_code}.jpg"
+            temp_image_path = os.path.join('static', temp_image_dir, unique_filename)
 
-            else:
-              res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
-              # img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
+            # 保存处理后的图片到本地临时目录
+            img.save(temp_image_path)
 
+            # 构建图片的URL
+            processed_image_url = url_for('static', filename=os.path.join(temp_image_dir, unique_filename))
 
-            res_info={
-                'info': res_info,
-            }
-
+            # 返回图片URL
             return make_succ_response({
-            'image_url': img,
-            'res_info': res_info
+                'image_url': processed_image_url,
+                'res_info': {
+                    'info': '图片处理成功',
+                }
             })
-
-        except Exception as e:
-          return make_err_response(f'图片处理失败: {e}')
         
 
-    
+        except Exception as e:
+            logging.log(logging.ERROR, f'图片处理失败: {e}')
+            return make_err_response(f'图片处理失败: {e}')
