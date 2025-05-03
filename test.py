@@ -3,12 +3,11 @@ from PIL import Image
 import io
 import json
 
-hostip='http://114.132.220.90:5001'
-# the ip of the cloud function is 114.132.220.90:5001
+
 
 def test_image_upload():
     # API地址（假设Flask运行在本地8000端口）
-    url = hostip+'/api/image_upload'
+    url = 'http://127.0.0.1:27082/api/image_upload'
     # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/image_process'
     
     # 准备图片文件
@@ -65,7 +64,7 @@ def test_image_upload():
               print("Raw Response:", response.text)
 
 def test_numbers():
-    url = hostip+'/api/factorial'
+    url = 'http://127.0.0.1:27081/api/factorial'
     # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/factorial'
     headers = {
         'content-type': 'application/json'
@@ -78,7 +77,7 @@ def test_numbers():
     print(response.json())
 
 def test_static():
-    url = hostip+'/debug_static'
+    url = 'http://127.0.0.1:27081/debug_static'
     # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/debug_static'
     response = requests.get(url)
     print(response.text)
@@ -86,6 +85,7 @@ def test_static():
 
 if __name__ == "__main__":
     test_numbers()
+
     test_image_upload()
     test_static()
     
