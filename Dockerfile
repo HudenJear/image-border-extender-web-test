@@ -13,8 +13,6 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
 
 RUN apt-get update && apt-get install -y ca-certificates
 
-RUN apt-get install -y python3 python3-pip 
-
 # 拷贝当前项目到/app目录下（.dockerignore中文件除外）
 COPY . /app
 
@@ -22,9 +20,7 @@ COPY . /app
 WORKDIR /app
 
 # 安装gcc新版本
-RUN apt-get install -y make automake gcc g++ subversion python3-dev
-RUN apt-get install -y libc-dev
-RUN apt-get install -y build-essential
+RUN apt-get install -y make automake gcc g++ subversion python3-dev libc-dev build-essential python3 python3-pip 
 
 # 安装依赖到指定的/install文件夹
 # 选用国内镜像源以提高下载速度
