@@ -2,9 +2,10 @@
 import sys
 from wxcloudrun import app
 
-# # local test
-# if len(sys.argv) < 3:
-#     sys.argv = [sys.argv[0], '192.168.50.195', '5000']
+# add params for online server or local test
+# the port 5001 is exposed on the server
+if len(sys.argv) < 3:
+    sys.argv = [sys.argv[0], '0.0.0.0', '5001']
 
 
 # 启动Flask Web服务
