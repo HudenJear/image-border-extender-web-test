@@ -2,9 +2,9 @@
 import sys
 from wxcloudrun import app
 
-# # local test
-# if len(sys.argv) < 3:
-#     sys.argv = [sys.argv[0], '192.168.50.195', '5000']
+# local test
+if len(sys.argv) < 3:
+    sys.argv = [sys.argv[0], '0.0.0.0', '5001']
 
 
 # 启动Flask Web服务
