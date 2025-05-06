@@ -13,7 +13,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]  # 输出到控制台
 )
 
-using_font=r'/app/fonts\LXGWBright-Italic.ttf'
+using_font=r'fonts/LXGWBright-Italic.ttf'
 
 # suppli_info="Kodak Vision3 5219 500T 120"
 # suppli_info="Kodak Vision3 5207 250T 120"
