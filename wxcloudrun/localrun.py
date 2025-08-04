@@ -20,12 +20,16 @@ make_img_square=False
 
 # suppli_info="Kodak Vision3 5219 500T 120"
 # suppli_info="Kodak Vision3 5207 250T 120"
-suppli_info="Kodak ColorPlus 200 135"
+# suppli_info="Kodak ColorPlus 200 135"
+# suppli_info="Kodak Gold Color 200 135"
+# suppli_info="Kodak Ultramax 400 135"
 # suppli_info="Kodak EktarChrome 5294 100D 135"
-# suppli_info="FUJICHROME Velvia 100 Daylight 120"
+# suppli_info="Kodak EktarChrome 100D 120"
+suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info="FUJICHROME Provia 100f Daylight 120"
 # suppli_info="Lucky SHD400 B/W FILM"
 # suppli_info="FUJIFILM 400 (New) 135"
+# suppli_info="FUJIFILM Superia 100 135"
 
 # suppli_info=None
 # suppli_info="Model: Nikki"
@@ -35,7 +39,8 @@ font_dict={
     'en': r'fonts\OPPOSans-Medium.ttf',
 }
 
-using_font=r'fonts\LXGWBright-Italic.ttf'
+# using_font=r'fonts\LXGWBright-Italic.ttf'
+using_font=r'fonts\Noto Sans SC Medium.otf'
 
 
 
@@ -52,6 +57,13 @@ text_dict={
     'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg'],
     'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
     'Rollei': ['Rolleiflex Twin lens 3.5A \n\nCarl Zeiss Opton T* 75mm F3.5', "logos/Rollei.jpg"],
+    'canon_EOS85': ['Canon EOS 7 \n\n Canon EF 85mm f/1.2L II USM','logos/canon.jpg'],
+    'canon_EOS40': ['Canon EOS 7 \n\n Canon EF 40mm f/2.8 STM','logos/canon.jpg'],
+    'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5','logos/pentax.jpg'],
+    'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8','logos/pentax.jpg'],
+    'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5','logos/yashica.jpg'],
+    
+
 
 
 }
@@ -64,7 +76,7 @@ logo_dict={
     'mamiya_six': 'logos/mamiya.jpg',
     'minolta':'logos/Minolta.jpg',
     'SONY':'logos/Sony-Alpha-Logo.png',
-    'Panasonic': 'logos/Panasonic-Lumix-Logo.jpg',
+    'Panasonic': 'logos/LumixS.jpg',
     'Canon': "logos/canon-r-logo.jpg",
     'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
     'OLYMPUS CORPORATION': "logos/Olympus-new.png",
@@ -72,6 +84,13 @@ logo_dict={
     'FUJIFILM': "logos/fujifilm.jpg",
     'Bronica': "logos/bronica.jpg",
     'Rollei': "logos/Rollei.jpg",
+    'canon_EOS85': 'logos/canon.jpg',
+    'canon_EOS40':  'logos/canon.jpg',
+    'pentax645_80160': 'logos/pentax.jpg',
+    'pentax645_75': 'logos/pentax.jpg',
+    'yashica124g': 'logos/yashica.jpg',
+
+
 }
 
 

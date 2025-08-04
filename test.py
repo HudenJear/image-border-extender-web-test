@@ -19,15 +19,15 @@ def test_image_upload():
       # image_data = f.read()
       files = {
           'image': ('test.jpg', f, 'image/jpeg'),
-          'infor_params': ('params.json', json.dumps({
-              'text': ' \n\n ',
-              'logo_file': 'logos/hassel.jpg',
-              'suppli_info': ''
-          }), 'application/json'),
-          'control_params': ('params.json', json.dumps({
-              'max_length': 1200,
-              'add_black_border': True
-          }), 'application/json')
+          # 'infor_params': ('params.json', json.dumps({
+          #     'text': ' \n\n ',
+          #     'logo_file': 'logos/hassel.jpg',
+          #     'suppli_info': ''
+          # }), 'application/json'),
+          # 'control_params': ('params.json', json.dumps({
+          #     'max_length': 1200,
+          #     'add_black_border': True
+          # }), 'application/json')
       }
       
       # 发送请求
