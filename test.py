@@ -3,17 +3,18 @@ from PIL import Image
 import io
 import json
 
-hostip='http://114.132.220.90:5001'
+hostip='http://192.168.50.195:5001/'
+# net_test=False
+net_test=True
 
 def test_image_upload():
     # API地址（假设Flask运行在本地8000端口）
-    url = hostip+'/api/image_upload'
-    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/image_process'
+    url = 'https://1339895887-1a3bm8xhpt.ap-guangzhou.tencentscf.com/product_service/api/image_upload' if net_test else hostip+'/api/image_upload'
+    print(f"Testing api on {url}")
     
     # 准备图片文件
     image_path = r'./P1032386.jpg'  
     
-
     # 准备文件和参数
     with open(image_path, 'rb') as f:
       # image_data = f.read()
@@ -48,12 +49,12 @@ def test_image_upload():
           print("图片格式:", img.format)
       elif  response.status_code == 200 and response.json().get('code') == 0:
           result = response.json()
-          print(result)
+          # print(result)
           print("处理后的图片URL:", result['data']['image_url'])
           print("处理信息:", result['data']['res_info'])
           image_response = requests.get(result['data']['image_url'])
           with open('downloaded_image.jpg', 'wb') as f:
-              print(image_response.content)
+              # print(image_response.content)
               f.write(image_response.content)
           print("图片已保存为 downloaded_image.jpg")
       else:
@@ -64,8 +65,8 @@ def test_image_upload():
               print("Raw Response:", response.text)
 
 def test_numbers():
-    url = hostip+'/api/factorial'
-    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/api/factorial'
+    url = hostip+'/api/factorial' if not net_test else 'https://1339895887-1a3bm8xhpt.ap-guangzhou.tencentscf.com/product_service/api/factorial'
+    print(f"Testing api on {url}")
     headers = {
         'content-type': 'application/json'
     }
@@ -77,15 +78,15 @@ def test_numbers():
     print(response.json())
 
 def test_static():
-    url = hostip+'/debug_static'
-    # url = 'https://flask-24os-137636-10-1339814045.sh.run.tcloudbase.com/debug_static'
+    url = hostip+'/api/debug_static' if not net_test else 'https://1339895887-1a3bm8xhpt.ap-guangzhou.tencentscf.com/product_service/api/debug_static'
+    print(f"Testing api on {url}")
+
     response = requests.get(url)
     print(response.text)
 
 
 if __name__ == "__main__":
     test_numbers()
-
     test_image_upload()
     test_static()
     

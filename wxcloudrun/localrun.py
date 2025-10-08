@@ -62,10 +62,9 @@ text_dict={
     'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5','logos/pentax.jpg'],
     'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8','logos/pentax.jpg'],
     'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5','logos/yashica.jpg'],
+    'leica_VM40': ['Leica M4 film camera \n\n Voigtländer VM 40mm F1.4 Nokton MC', 'logos/Leicalogo.jpg'],
+    'leica_M35': ['Leica M4 film camera \n\n Leica Summicron-M 35mm f1:2', 'logos/Leicalogo.jpg'],
     
-
-
-
 }
 logo_dict={
 'hassel_CF60':'logos/hassel.jpg',
@@ -89,7 +88,8 @@ logo_dict={
     'pentax645_80160': 'logos/pentax.jpg',
     'pentax645_75': 'logos/pentax.jpg',
     'yashica124g': 'logos/yashica.jpg',
-
+    'leica_VM40': 'logos/Leicalogo.jpg',
+    'leica_M35': 'logos/Leicalogo.jpg',
 
 }
 

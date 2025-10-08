@@ -1,6 +1,5 @@
 from datetime import datetime
 from flask import render_template, request, send_file, url_for
-from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -10,8 +9,10 @@ import piexif
 import  os,glob,io
 import numpy as np
 import json
+import uuid
 from .add_bd import rotate_image_90_no_crop, process_one_image
 import logging
+from run import app
 
 logging.basicConfig(
     format='[%(asctime)s] %(message)s',
@@ -30,7 +31,7 @@ temp_image_dir = 'temp_images'
 #     """
 #     return render_template('index.html')
 
-@app.route('/debug_static')
+@app.route('/api/debug_static')
 def debug_static():
     static_path = app.static_folder
     return f"Static folder: {static_path}"
@@ -134,7 +135,8 @@ def image_upload():
     """
     # 获取请求体参数
     # 确保 tempimage 目录存在
-    os.makedirs('wxcloudrun/static/'+temp_image_dir, exist_ok=True)
+    # os.makedirs('wxcloudrun/static/'+temp_image_dir, exist_ok=True)
+    os.makedirs(os.path.join(app.static_folder, temp_image_dir), exist_ok=True)
 
     # params = request.get_json()
     logging.info(request.files)
@@ -220,8 +222,9 @@ def image_upload():
         try:
             # 生成唯一的文件名
             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            filename = f'processed_{timestamp}.jpg'
-            filepath = 'wxcloudrun/static/'+temp_image_dir+"/"+ filename
+            random_code = uuid.uuid4().hex[:8]
+            filename = f'processed_{timestamp}_{random_code}.jpg'
+            filepath = os.path.join(app.static_folder, temp_image_dir, filename)
             img.save(filepath, 'JPEG', quality=80)
             image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
             
@@ -234,7 +237,34 @@ def image_upload():
         except Exception as e:
           return make_err_response(f'图片保存失败: {e}')
 
+@app.route('/api/image_download', methods=['POST'])
+def image_download():
+    """
+    下载处理好的图片
+    :return: 图片二进制流
+    """
+    # 获取请求体参数
+    params = request.get_json()
 
+    # 检查img_url参数
+    if 'img_url' not in params:
+        return make_err_response('缺少img_url参数')
+
+    img_url = params['img_url']
+
+    # Extract the filename from the URL (Assuming the URL ends with '/filename.jpg')
+    filename = img_url.split('/')[-1]
+
+    # Construct the local file path
+    filepath = os.path.join(app.static_folder, temp_image_dir, filename)
+    logging.info(filepath)
+
+    # # Check if the file exists
+    # if not os.path.isfile(filepath):
+    #     return make_err_response('文件不存在')
+
+    # Send the file as a binary stream
+    return send_file(filepath, mimetype='image/jpg')
 
 # @app.route('/api/image_process', methods=['POST'])
 # def image_process():

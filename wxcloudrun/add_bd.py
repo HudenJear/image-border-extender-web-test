@@ -34,6 +34,15 @@ text_dict={
     'auto_detect':['',''],
     'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg'],
     'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
+    'Rollei': ['Rolleiflex Twin lens 3.5A \n\nCarl Zeiss Opton T* 75mm F3.5', "logos/Rollei.jpg"],
+    'canon_EOS85': ['Canon EOS 7 \n\n Canon EF 85mm f/1.2L II USM','logos/canon.jpg'],
+    'canon_EOS40': ['Canon EOS 7 \n\n Canon EF 40mm f/2.8 STM','logos/canon.jpg'],
+    'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5','logos/pentax.jpg'],
+    'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8','logos/pentax.jpg'],
+    'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5','logos/yashica.jpg'],
+    
+
+
 
 }
 logo_dict={
@@ -45,17 +54,22 @@ logo_dict={
     'mamiya_six': 'logos/mamiya.jpg',
     'minolta':'logos/Minolta.jpg',
     'SONY':'logos/Sony-Alpha-Logo.png',
-    'Panasonic': 'logos/Panasonic-Lumix-Logo.jpg',
+    'Panasonic': 'logos/LumixS.jpg',
     'Canon': "logos/canon-r-logo.jpg",
     'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
     'OLYMPUS CORPORATION': "logos/Olympus-new.png",
     'NIKON CORPORATION': "logos/Olympus-new.png",
     'FUJIFILM': "logos/fujifilm.jpg",
     'Bronica': "logos/bronica.jpg",
+    'Rollei': "logos/Rollei.jpg",
+    'canon_EOS85': 'logos/canon.jpg',
+    'canon_EOS40':  'logos/canon.jpg',
+    'pentax645_80160': 'logos/pentax.jpg',
+    'pentax645_75': 'logos/pentax.jpg',
+    'yashica124g': 'logos/yashica.jpg',
+    'Leica': 'logos/Leicalogo.jpg',
 
 }
-
-
 # def initializing_directories():
 #     if not os.path.exists(tgt):
 #         os.mkdir(tgt)
