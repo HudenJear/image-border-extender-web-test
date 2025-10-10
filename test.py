@@ -4,8 +4,8 @@ import io
 import json
 
 hostip='http://192.168.50.195:5001/'
-# net_test=False
-net_test=True
+net_test=False
+# net_test=True
 
 def test_image_upload():
     # API地址（假设Flask运行在本地8000端口）
@@ -20,19 +20,26 @@ def test_image_upload():
       # image_data = f.read()
       files = {
           'image': ('test.jpg', f, 'image/jpeg'),
-          # 'infor_params': ('params.json', json.dumps({
-          #     'text': ' \n\n ',
-          #     'logo_file': 'logos/hassel.jpg',
-          #     'suppli_info': ''
-          # }), 'application/json'),
-          # 'control_params': ('params.json', json.dumps({
-          #     'max_length': 1200,
-          #     'add_black_border': True
-          # }), 'application/json')
       }
+      data = {
+            # must be strings for form fields
+            'infor_params': json.dumps({
+                'use_info_option': True,         # important
+                'text': ' \n\n ',
+                'logo_file': 'logos/hassel.jpg',
+                'suppli_info': ''
+            }),
+            'control_params': json.dumps({
+                'use_control_option': True,      # important
+                'max_length': 1200,
+                'add_black_border': True,
+                'extend_to_square': False,
+                'filter': 'vivid'          # e.g. black_white | vivid | retro | film | none
+            }),
+            }
       
       # 发送请求
-      response = requests.post(url, files=files)
+      response = requests.post(url, files=files,data=data)
       
       print("Status Code:", response.status_code)
       

@@ -1,4 +1,5 @@
 from PIL import Image,ImageDraw,ImageFont,ImageOps
+from PIL import ImageEnhance
 from PIL.ExifTags import TAGS
 import piexif
 import numpy as np
@@ -119,6 +120,82 @@ def rotate_image_90_no_crop(image_data,reverse=False):
     cropped_image = rotated_image.crop(bbox)
 
     return cropped_image
+
+
+def apply_filter(img_input, filter_key: str):
+    """
+    根据给定的过滤器关键字对图片进行滤镜处理。
+    支持的 filter_key:
+    - 'black_white': 黑白
+    - 'vivid': 增强色彩与对比度
+    - 'retro': 复古(棕褐色/褪色)
+    - 'film': 胶片感(轻微颗粒+柔和对比)
+    - 'none' 或其他: 不处理
+
+    返回处理后的 PIL.Image.Image
+    """
+    if img_input is None:
+        return img_input
+
+    key = (filter_key or 'none').strip().lower()
+    img = img_input.convert('RGB')
+
+    try:
+        if key == 'black_white':
+            # 转为灰度再回到RGB
+            return ImageOps.grayscale(img).convert('RGB')
+
+        elif key == 'vivid':
+            # 提升饱和度、对比度与轻微锐化
+            img_c = ImageEnhance.Color(img).enhance(1.5)
+            img_ct = ImageEnhance.Contrast(img_c).enhance(1.2)
+            img_b = ImageEnhance.Brightness(img_ct).enhance(1.03)
+            return img_b
+
+        elif key == 'retro':
+            # 简单的复古棕褐色(Sephia)效果
+            import numpy as np
+            arr = np.array(img, dtype=np.float32)
+            r = arr[:, :, 0]
+            g = arr[:, :, 1]
+            b = arr[:, :, 2]
+            tr = 0.393 * r + 0.769 * g + 0.189 * b
+            tg = 0.349 * r + 0.686 * g + 0.168 * b
+            tb = 0.272 * r + 0.534 * g + 0.131 * b
+            sepia = np.stack([tr, tg, tb], axis=-1)
+            sepia = np.clip(sepia, 0, 255).astype('uint8')
+            out = Image.fromarray(sepia, mode='RGB')
+            # 略微降低对比与增加暖色氛围
+            out = ImageEnhance.Contrast(out).enhance(0.95)
+            out = ImageEnhance.Color(out).enhance(1.05)
+            return out
+
+        elif key == 'film':
+            # 轻微胶片感：少量颗粒 + 柔和对比 + 轻微色偏
+            import numpy as np
+            base = img
+            # 添加颗粒
+            arr = np.array(base, dtype=np.int16)
+            h, w, _ = arr.shape
+            noise = np.random.normal(loc=0.0, scale=6.0, size=(h, w, 1))  # 单通道噪声
+            noise = np.repeat(noise, 3, axis=2)
+            arr = arr + noise
+            arr = np.clip(arr, 0, 255).astype('uint8')
+            out = Image.fromarray(arr, mode='RGB')
+            # 轻微降低对比，模拟宽容度
+            out = ImageEnhance.Contrast(out).enhance(0.98)
+            # 轻微偏绿青
+            tint = Image.new('RGB', out.size, (220, 235, 225))
+            out = Image.blend(out, tint, alpha=0.04)
+            return out
+
+        else:
+            # 默认不做处理
+            
+            return img
+    except Exception:
+        # 任意异常都回退为原图，避免中断流程
+        raise ValueError("apply_filter failed")
 
 
 def process_one_image(img_input,text,logo_file,suppli_info='',max_length=2400,add_black_border=True,square=False):

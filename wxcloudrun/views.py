@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, request, send_file, url_for
+from flask import render_template, request, send_file, url_for, after_this_request
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -10,7 +10,7 @@ import  os,glob,io
 import numpy as np
 import json
 import uuid
-from .add_bd import rotate_image_90_no_crop, process_one_image
+from .add_bd import rotate_image_90_no_crop, process_one_image, apply_filter
 import logging
 from run import app
 
@@ -164,6 +164,8 @@ def image_upload():
             add_black_border = True
             max_length = 2400
             extend_to_square=False
+            # default filter key
+            filter_key = 'none'
             if 'control_params' in request.form:
                 params = json.loads(request.form.get('control_params', '{}'))
                 use_control_option=params.get('use_control_option') if params.get('use_control_option') else False
@@ -172,6 +174,8 @@ def image_upload():
                   add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
                   max_length = params.get('max_length') if params.get('max_length') else 2400
                   extend_to_square=params.get('extend_to_square') if params.get('extend_to_square') else False
+                  # parse filter key from control params
+                  filter_key = str(params.get('filter', 'none')).strip().lower()
                 else:
                   logging.info('不使用控制参数')
             else:
@@ -209,16 +213,20 @@ def image_upload():
             logging.info(e)
 
             return make_err_response(f'信息处理失败: {e}')
+        # apply filter
+        try:
+            img=apply_filter(img,filter_key)
+            logging.info(f'apply filter: {filter_key} successful.')
+        except Exception as e:
+          logging.info(f'apply filter: {filter_key} failed: {e}')
+        # apply border and text
         try:
             img=process_one_image(img,text,logo_file,suppli_info,max_length=max_length,add_black_border=add_black_border,square=extend_to_square)
             # 微信小程序无法接收二进制文件流，这是因为uploadfile和request.files之间的区别导致的，这个问题时微信自己的api限制，并不是本程序的问题
             # # 返回处理后的图片(图片流)
-            # img_io = io.BytesIO()
-            # img.save(img_io, 'JPEG', quality=80)
-            # img_io.seek(0)
-            # return send_file(img_io,mimetype='image/jpeg')
         except Exception as e:
           return make_err_response(f'图片处理失败: {e}')
+        
         try:
             # 生成唯一的文件名
             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -259,80 +267,22 @@ def image_download():
     filepath = os.path.join(app.static_folder, temp_image_dir, filename)
     logging.info(filepath)
 
-    # # Check if the file exists
-    # if not os.path.isfile(filepath):
-    #     return make_err_response('文件不存在')
+    # Check if the file exists
+    if not os.path.isfile(filepath):
+        return make_err_response('文件不存在')
 
-    # Send the file as a binary stream
-    return send_file(filepath, mimetype='image/jpg')
+    # @after_this_request
+    # def remove_file(response):
+    #     try:
+    #         os.remove(filepath)
+    #         logging.info(f"Deleted file after download: {filepath}")
+    #     except Exception as e:
+    #         logging.error(f"删除文件失败: {e}")
+    #     return response
 
-# @app.route('/api/image_process', methods=['POST'])
-# def image_process():
-#     """
-#     处理一张图片
-#     :return: 处理后的图片
-#     """
-#     # 获取请求体参数
-#     # 确保 tempimage 目录存在
-#     os.makedirs('static/'+temp_image_dir,exist_ok=True)
+    # Send the file as a binary stream and trigger deletion after response
+    return send_file(filepath, mimetype='image/jpeg', as_attachment=True, download_name=filename)
 
-#     # params = request.get_json()
-#     logging.info(request.files)
-#     files = request.files
-#     # 检查img参数
-#     if 'image' not in files:
-#         return make_err_response('没有收到图片')
-#     elif files['image'].filename == '':
-#             return make_err_response('没有收到图片')
-#     else:
-#         img_file = files['image']
-#         try:
-#             img = Image.open(img_file.stream).convert('RGB')
-#             if 'control_params' in files:
-#                 params = json.loads(request.files['control_params'].read())
-#                 add_black_border = params.get('add_black_border') if params.get('add_black_border') else False
-#                 max_length = params.get('max_length') if params.get('max_length') else 2400
-#             else:
-#                 add_black_border = True
-#                 max_length = 2400
-
-#             if 'infor_params' in files:
-
-#               res_info='收到处理选项,开始默认处理模式'
-#               params = json.loads(request.files['infor_params'].read())
-              
-#               suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
-              
-#               text = params.get('text') if params.get('text') else ' \n\n '
-#               logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
-#               img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
-
-#             else:
-#               res_info='没有收到处理选项,使用EXIF信息overwrite识别结果'
-#               img=process_one_image(img,text='',logo_file='',max_length=max_length,add_black_border=add_black_border)
-
-#             # # 返回处理后的图片(图片流)
-#             # img_io = io.BytesIO()
-#             # img.save(img_io, 'JPEG', quality=80)
-#             # img_io.seek(0)
-#             # return send_file(img_io,mimetype='image/jpeg')
-
-
-#             # 生成唯一的文件名
-#             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-#             filename = f'processed_{timestamp}.jpg'
-#             filepath = 'static/'+temp_image_dir+"/"+ filename
-#             img.save(filepath, 'JPEG', quality=80)
-#             image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
-            
-
-#             return make_succ_response({
-#             'image_url': image_url,
-#             'res_info': res_info
-#             })
-
-#         except Exception as e:
-#           return make_err_response(f'图片处理失败: {e}')
         
 
     
