@@ -10,7 +10,7 @@ import  os,glob,io
 import numpy as np
 import json
 import uuid
-from .add_bd import rotate_image_90_no_crop, process_one_image, apply_filter
+from .add_bd import rotate_image_90_no_crop, process_one_image, apply_filter, AVAILABLE_FORMAT_KEYS as AVAILABLE_FORMAT_KEYS
 import logging
 from run import app
 
@@ -154,6 +154,18 @@ def image_upload():
         img_file = files['image']
         # logging.info(img_file.stream)
         try:
+            # Log original upload size (bytes)
+            original_size_bytes = getattr(img_file, 'content_length', None)
+            if not original_size_bytes:
+                try:
+                    cur_pos = img_file.stream.tell()
+                    img_file.stream.seek(0, os.SEEK_END)
+                    original_size_bytes = img_file.stream.tell()
+                    img_file.stream.seek(cur_pos)
+                except Exception:
+                    original_size_bytes = None
+            logging.info(f"Original upload size: {original_size_bytes} bytes")
+
             img_file.stream.seek(0)
             img = Image.open(img_file.stream).convert('RGB')
         except Exception as e:
@@ -166,6 +178,10 @@ def image_upload():
             extend_to_square=False
             # default filter key
             filter_key = 'none'
+            # default filter strength
+            filter_strength = 0.5
+            # default format key
+            format_key = 'basic1'
             if 'control_params' in request.form:
                 params = json.loads(request.form.get('control_params', '{}'))
                 use_control_option=params.get('use_control_option') if params.get('use_control_option') else False
@@ -176,6 +192,19 @@ def image_upload():
                   extend_to_square=params.get('extend_to_square') if params.get('extend_to_square') else False
                   # parse filter key from control params
                   filter_key = str(params.get('filter', 'none')).strip().lower()
+                  # parse filter strength from control params, default 0.5
+                  try:
+                      fs = float(params.get('filter_strength', 0.5))
+                  except Exception:
+                      fs = 0.5
+                  # clamp to [0,1]
+                  filter_strength = max(0.0, min(1.0, fs))
+                  # parse format key from control params
+                  fmt = params.get('format')
+                  if isinstance(fmt, str):
+                      candidate = fmt.strip()
+                      if candidate in AVAILABLE_FORMAT_KEYS:
+                          format_key = candidate
                 else:
                   logging.info('不使用控制参数')
             else:
@@ -215,13 +244,13 @@ def image_upload():
             return make_err_response(f'信息处理失败: {e}')
         # apply filter
         try:
-            img=apply_filter(img,filter_key)
+            img=apply_filter(img,filter_key, strength=filter_strength)
             logging.info(f'apply filter: {filter_key} successful.')
         except Exception as e:
           logging.info(f'apply filter: {filter_key} failed: {e}')
         # apply border and text
         try:
-            img=process_one_image(img,text,logo_file,suppli_info,max_length=max_length,add_black_border=add_black_border,square=extend_to_square)
+            img=process_one_image(img,text,logo_file,suppli_info,format=format_key,max_length=max_length,add_black_border=add_black_border,square=extend_to_square)
             # 微信小程序无法接收二进制文件流，这是因为uploadfile和request.files之间的区别导致的，这个问题时微信自己的api限制，并不是本程序的问题
             # # 返回处理后的图片(图片流)
         except Exception as e:
