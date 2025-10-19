@@ -11,6 +11,7 @@ def ensure_dir(path: str):
 
 
 def make_width_thumbnail(img: Image.Image, width: int) -> Image.Image:
+  
     if img.width == 0 or img.height == 0:
         return img
     if img.width< img.height:
@@ -25,7 +26,7 @@ def make_width_thumbnail(img: Image.Image, width: int) -> Image.Image:
 
 
 def main():
-    image_path = os.path.join('.', 'P1032386.jpg')
+    image_path = os.path.join('.', 'P_1016535.JPG')
     out_dir = os.path.join('.', 'img_thumbnail')
     ensure_dir(out_dir)
 
@@ -40,10 +41,10 @@ def main():
             with Image.open(image_path) as img:
                 img = img.convert('RGB')
                 # strength default = 0.5 (baseline)
-                processed = apply_filter(img, key, strength=0.5)
-                thumb = make_width_thumbnail(processed, 100)
+                thumb = make_width_thumbnail(img,200)
+                processed = apply_filter(thumb, key, strength=0.5)
                 out_path = os.path.join(out_dir, f"filter_{key}.jpg")
-                thumb.save(out_path, format='JPEG', quality=92)
+                processed.save(out_path, format='JPEG', quality=92)
                 print(f"Saved: {out_path}")
         except Exception as e:
             print(f"Failed on filter '{key}': {e}")
@@ -62,7 +63,7 @@ def main():
         return ''
 
     logo_path = pick_logo()
-    text_default = 'Camera\n\nLens'
+    text_default = 'Camera Type\n\nLens information '
 
     for fmt in sorted(FORMAT_KEYS):
         try:
@@ -73,12 +74,12 @@ def main():
                     text=text_default,
                     logo_file=logo_path,
                     format=fmt,
-                    suppli_info='',
-                    max_length=1200,
+                    suppli_info='Supplimentary information',
+                    max_length=2000,
                     add_black_border=True,
                     square=False,
                 )
-                thumb = make_width_thumbnail(processed, 100)
+                thumb = make_width_thumbnail(processed, 600)
                 out_path = os.path.join(out_dir, f"format_{fmt}.jpg")
                 thumb.save(out_path, format='JPEG', quality=92)
                 print(f"Saved: {out_path}")

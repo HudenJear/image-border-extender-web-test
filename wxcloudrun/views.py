@@ -210,6 +210,22 @@ def image_upload():
             else:
                 logging.info('未收到控制参数，不使用控制参数')
 
+            # Early resize to reduce compute: ensure long side <= max_length
+            try:
+                if isinstance(max_length, (int, float)) and max_length and max_length > 0:
+                    w, h = img.size
+                    long_side = max(w, h)
+                    if long_side > max_length:
+                        scale = float(max_length) / float(long_side)
+                        new_w = max(1, int(round(w * scale)))
+                        new_h = max(1, int(round(h * scale)))
+                        img = img.resize((new_w, new_h), Image.LANCZOS)
+                        logging.info(f'image_upload: resized from {w}x{h} to {new_w}x{new_h} (max_length={max_length})')
+                    else:
+                        logging.info(f'image_upload: no resize needed for size {w}x{h} (max_length={max_length})')
+            except Exception as e:
+                logging.info(f'image_upload: early resize failed, continue without resize: {e}')
+
             #set default information
             text=' \n\n '
             logo_file='logos/hassel.jpg'
@@ -262,7 +278,10 @@ def image_upload():
             random_code = uuid.uuid4().hex[:8]
             filename = f'processed_{timestamp}_{random_code}.jpg'
             filepath = os.path.join(app.static_folder, temp_image_dir, filename)
-            img.save(filepath, 'JPEG', quality=80)
+            img.save(filepath, 'JPEG', quality=80, optimize=True, progressive=True, subsampling=0)
+            # filename = f'processed_{timestamp}_{random_code}.webp'
+            # filepath = os.path.join(app.static_folder, temp_image_dir, filename)
+            # img.save(filepath, 'WEBP', quality=90, method=6)
             image_url = url_for('static', filename=f"{temp_image_dir}/{filename}", _external=True)
             
 
@@ -281,36 +300,70 @@ def image_download():
     :return: 图片二进制流
     """
     # 获取请求体参数
-    params = request.get_json()
+    try:
+        params = request.get_json(silent=True)
+    except Exception as e:
+        logging.error(f"image_download: failed to parse json body: {e}")
+        return make_err_response('缺少img_url参数')
+    logging.info(
+        f"image_download: request meta mimetype={request.mimetype}, content_type={request.content_type}, "
+        f"content_length={request.content_length}, remote_addr={request.remote_addr}, "
+        f"user_agent={request.user_agent}"
+    )
+    logging.info(f"image_download: raw params={params}")
 
     # 检查img_url参数
-    if 'img_url' not in params:
+    try:
+        if not isinstance(params, dict) or 'img_url' not in params:
+            logging.warning("image_download: missing 'img_url' in params or params is not dict")
+            return make_err_response('缺少img_url参数')
+        img_url = params.get('img_url')
+    except Exception as e:
+        logging.error(f"image_download: error accessing img_url from params: {e}")
         return make_err_response('缺少img_url参数')
 
-    img_url = params['img_url']
-
     # Extract the filename from the URL (Assuming the URL ends with '/filename.jpg')
-    filename = img_url.split('/')[-1]
+    try:
+        filename = str(img_url).split('/')[-1]
+    except Exception as e:
+        logging.error(f"image_download: failed to extract filename from img_url={img_url}: {e}")
+        return make_err_response('缺少img_url参数')
 
     # Construct the local file path
-    filepath = os.path.join(app.static_folder, temp_image_dir, filename)
-    logging.info(filepath)
-
-    # Check if the file exists
-    if not os.path.isfile(filepath):
+    try:
+        filepath = os.path.join(app.static_folder, temp_image_dir, filename)
+        logging.info(
+            f"image_download: resolved path filepath={filepath}, static_folder={app.static_folder}, "
+            f"temp_image_dir={temp_image_dir}, filename={filename}, img_url={img_url}"
+        )
+    except Exception as e:
+        logging.error(f"image_download: failed to construct filepath for filename={filename}: {e}")
         return make_err_response('文件不存在')
 
-    # @after_this_request
-    # def remove_file(response):
-    #     try:
-    #         os.remove(filepath)
-    #         logging.info(f"Deleted file after download: {filepath}")
-    #     except Exception as e:
-    #         logging.error(f"删除文件失败: {e}")
-    #     return response
+    # Check if the file exists
+    try:
+        if not os.path.isfile(filepath):
+            logging.warning(f"image_download: file not found at path={filepath}")
+            return make_err_response('文件不存在')
+    except Exception as e:
+        logging.error(f"image_download: os.path.isfile failed for {filepath}: {e}")
+        return make_err_response('文件不存在')
 
-    # Send the file as a binary stream and trigger deletion after response
-    return send_file(filepath, mimetype='image/jpeg', as_attachment=True, download_name=filename)
+    try:
+        try:
+            file_size = os.path.getsize(filepath)
+        except Exception as e:
+            file_size = None
+            logging.info(f"image_download: failed to get file size for {filepath}: {e}")
+
+        logging.info(
+            f"image_download: sending file path={filepath}, size={file_size} bytes, "
+            f"as_attachment=True, download_name={filename}, mimetype=image/jpeg"
+        )
+        return send_file(filepath, mimetype='image/jpeg', as_attachment=True, download_name=filename)
+    except Exception as e:
+        logging.error(f"image_download: failed to send file {filepath}: {e}")
+        return make_err_response(f'文件发送失败: {e}')
 
         
 

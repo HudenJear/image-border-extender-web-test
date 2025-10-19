@@ -16,3 +16,7 @@ numpy
 scikit-learn
 requests
 wxcloudsdk
+
+pylut
+matplotlib
+opencv-python
