@@ -29,7 +29,11 @@ suppli_info="FUJICHROME Velvia 100 Daylight 120"
 # suppli_info="FUJICHROME Provia 100f Daylight 120"
 # suppli_info="Lucky SHD400 B/W FILM"
 # suppli_info="FUJIFILM 400 (New) 135"
+# suppli_info="FUJIFILM 200 (New) 135"
 # suppli_info="FUJIFILM Superia 100 135"
+# suppli_info="FUJIFILM Venus 400 135"
+# suppli_info="KODAK AEROCOLOR IV Negative Film 2460"
+
 
 # suppli_info=None
 # suppli_info="Model: Nikki"
@@ -49,6 +53,7 @@ text_dict={
     'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3.5",'logos/hassel.jpg'],
     'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
     'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1.4", 'logos/Olympus.jpg'],
+    'olym_dc35': ["Olympus 35DC\n\nF.Zuiko Auto 40mm F1.7", 'logos/Olympus.jpg'],
     'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2.8", 'logos/Olympus.jpg'],
     'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
     'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
@@ -60,6 +65,7 @@ text_dict={
     'canon_EOS85': ['Canon EOS 7 \n\n Canon EF 85mm f/1.2L II USM','logos/canon.jpg'],
     'canon_EOS40': ['Canon EOS 7 \n\n Canon EF 40mm f/2.8 STM','logos/canon.jpg'],
     'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5','logos/pentax.jpg'],
+    'pentax645_4585': ['Pentax 645N II \n\n Pentax smc FA 645 45-85mm f/4.5','logos/pentax.jpg'],
     'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8','logos/pentax.jpg'],
     'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5','logos/yashica.jpg'],
     'leica_VM40': ['Leica M4 film camera \n\n Voigtländer VM 40mm F1.4 Nokton MC', 'logos/Leicalogo.jpg'],
@@ -70,6 +76,7 @@ logo_dict={
 'hassel_CF60':'logos/hassel.jpg',
     'hassel_CF150': 'logos/hassel.jpg',
     'olym_50':'logos/Olympus.jpg',
+    'olym_dc35':'logos/Olympus.jpg',
     'olym_135': 'logos/Olympus.jpg',
     'olym_2848': 'logos/Olympus.jpg',
     'mamiya_six': 'logos/mamiya.jpg',
@@ -86,6 +93,7 @@ logo_dict={
     'canon_EOS85': 'logos/canon.jpg',
     'canon_EOS40':  'logos/canon.jpg',
     'pentax645_80160': 'logos/pentax.jpg',
+    'pentax645_4585': 'logos/pentax.jpg',
     'pentax645_75': 'logos/pentax.jpg',
     'yashica124g': 'logos/yashica.jpg',
     'leica_VM40': 'logos/Leicalogo.jpg',

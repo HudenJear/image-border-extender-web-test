@@ -7,6 +7,8 @@ hostip='http://192.168.50.195:5001/'
 net_test=False
 # net_test=True
 
+
+
 def test_image_upload():
     # API地址（假设Flask运行在本地8000端口）
     url = 'https://1339895887-1a3bm8xhpt.ap-guangzhou.tencentscf.com/product_service/api/image_upload' if net_test else hostip+'/api/image_upload'

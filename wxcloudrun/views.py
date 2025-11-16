@@ -182,6 +182,8 @@ def image_upload():
             filter_strength = 0.5
             # default format key
             format_key = 'basic1'
+            # default film name
+            
             if 'control_params' in request.form:
                 params = json.loads(request.form.get('control_params', '{}'))
                 use_control_option=params.get('use_control_option') if params.get('use_control_option') else False
@@ -205,6 +207,7 @@ def image_upload():
                       candidate = fmt.strip()
                       if candidate in AVAILABLE_FORMAT_KEYS:
                           format_key = candidate
+                  
                 else:
                   logging.info('不使用控制参数')
             else:
@@ -230,6 +233,7 @@ def image_upload():
             text=' \n\n '
             logo_file='logos/hassel.jpg'
             suppli_info=' '
+            film_name=''
             if 'infor_params' in request.form:
               params = json.loads(request.form.get('infor_params', '{}'))
               use_info_option=params.get('use_info_option') if params.get('use_info_option') else False
@@ -239,6 +243,7 @@ def image_upload():
                 suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
                 text = params.get('text') if params.get('text') else ' \n\n '
                 logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
+                film_name = params.get('film_name') if params.get('film_name') else ''
               # img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
               else:
                   res_info='不使用信息参数'
@@ -266,7 +271,7 @@ def image_upload():
           logging.info(f'apply filter: {filter_key} failed: {e}')
         # apply border and text
         try:
-            img=process_one_image(img,text,logo_file,suppli_info,format=format_key,max_length=max_length,add_black_border=add_black_border,square=extend_to_square)
+            img=process_one_image(img,text,logo_file,suppli_info,format=format_key,max_length=max_length,add_black_border=add_black_border,square=extend_to_square,film_name=film_name)
             # 微信小程序无法接收二进制文件流，这是因为uploadfile和request.files之间的区别导致的，这个问题时微信自己的api限制，并不是本程序的问题
             # # 返回处理后的图片(图片流)
         except Exception as e:

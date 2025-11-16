@@ -15,8 +15,26 @@ __all__ = [
     'AVAILABLE_FORMAT_KEYS',
 ]
 
+film_logs={
+  'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+  'FujiFilm C200 135':  'films/FujiC200-new-135.jpg',
+  'FujiFilm C400 135':  'films/FujiC400-new-135.jpg',
+  'FujiFilm Pro Provia 100f 120':  'films/Fujifilm_RDP_III_120.jpg',
+  'FujiFilm Pro Provia 100f 135':  'films/Fujifilm_RDP_III_135.jpg',
+  'FujiFilm Pro Velvia 100 120':  'films/Velvia100-120.jpg',
+  'FujiFilm Pro Velvia 100 135':  'films/Velvia100-135.jpg',
+  'FujiFilm Pro Velvia 50 120':  'films/Velvia_50-120.jpg',
+  'FujiFilm Pro Velvia 50 135':  'films/Velvia_50-135.jpg',
+  'Kodak Ektachrome 100 Daylight 120':  'films/kodak-film-ektachrome-100-120.webp',
+  'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.webp',
+  'Kodak Gold 200 Daylight 120':  'films/kodak-gold-200-120.jpg',
+  'Kodak T-Max 400 135':  'films/kodak-tmax-400-135.jpg',
+  'Kodak T-Max 400 120':  'films/kodak-tmax400-120.jpg',
+  'Kodak Tri-X 400 135':  'films/kodak-tri-x-400-135.jpg',
+}
 
-def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False) -> Image.Image:
+
+def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_name: str = '', **kwargs) -> Image.Image:
     suppli_line = suppli_info
     # 自动读取 EXIF 信息
     if text == '':
@@ -69,11 +87,50 @@ def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str
     background.paste(img, (core.exterior, core.exterior))
 
     # add logo
-    logo_img = Image.open(logo_file).convert('RGB')
-    logo_height = core.infor_area * 0.8
-    logo_img = logo_img.resize((int(logo_img.width * logo_height / logo_img.height), int(logo_height)))
-    background.paste(logo_img, (int(core.tgt_size + 2 * core.border_size + core.exterior - logo_img.width * logo_height / logo_img.height), int(new_height + 2 * core.border_size + 2 * core.exterior)))
-    draw = ImageDraw.Draw(background)
+    if film_name!='':
+      # 获取film logo路径
+      film_logo_path = film_logs.get(film_name, '')
+      if film_logo_path and os.path.exists(film_logo_path):
+        # 打开两个logo
+        film_logo_img = Image.open(film_logo_path).convert('RGB')
+        camera_logo_img = Image.open(logo_file).convert('RGB')
+        
+        # 统一高度，以原有logo的高度标准
+        logo_height = core.infor_area * 0.8
+        
+        # 调整两个logo尺寸
+        camera_logo_width = int(camera_logo_img.width * logo_height / camera_logo_img.height)
+        camera_logo_img = camera_logo_img.resize((camera_logo_width, int(logo_height)))
+        
+        film_logo_width = int(film_logo_img.width * logo_height / film_logo_img.height)
+        film_logo_img = film_logo_img.resize((film_logo_width, int(logo_height)))
+        
+        # 计算位置：原有logo在右边的位置
+        camera_logo_x = int(core.tgt_size + 2 * core.border_size + core.exterior - camera_logo_width)
+        logo_y = int(new_height + 2 * core.border_size + 2 * core.exterior)
+        
+        # film logo在左边，间距为core.exterior
+        film_logo_x = camera_logo_x - core.exterior - film_logo_width
+        
+        # 粘贴两个logo
+        background.paste(film_logo_img, (film_logo_x, logo_y))
+        background.paste(camera_logo_img, (camera_logo_x, logo_y))
+        
+        draw = ImageDraw.Draw(background)
+      else:
+        # 如果film logo不存在，退回到只显示原有logo
+        logo_img = Image.open(logo_file).convert('RGB')
+        logo_height = core.infor_area * 0.8
+        logo_img = logo_img.resize((int(logo_img.width * logo_height / logo_img.height), int(logo_height)))
+        background.paste(logo_img, (int(core.tgt_size + 2 * core.border_size + core.exterior - logo_img.width * logo_height / logo_img.height), int(new_height + 2 * core.border_size + 2 * core.exterior)))
+        draw = ImageDraw.Draw(background)
+    else:
+      # logo_file=logo_file
+      logo_img = Image.open(logo_file).convert('RGB')
+      logo_height = core.infor_area * 0.8
+      logo_img = logo_img.resize((int(logo_img.width * logo_height / logo_img.height), int(logo_height)))
+      background.paste(logo_img, (int(core.tgt_size + 2 * core.border_size + core.exterior - logo_img.width * logo_height / logo_img.height), int(new_height + 2 * core.border_size + 2 * core.exterior)))
+      draw = ImageDraw.Draw(background)
 
     # add text 1 the camera
     font = ImageFont.truetype(core.using_font, core.font_size)
@@ -121,7 +178,7 @@ def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str
 
     return background
 
-def _format_basic2(img, text, logo_file, suppli_info='', *, square=False):
+def _format_basic2(img, text, logo_file, suppli_info='', *, square=False, film_name:str = '', **kwargs):
     """
     Format with all elements centered vertically:
     - Logo (top)
@@ -166,7 +223,30 @@ def _format_basic2(img, text, logo_file, suppli_info='', *, square=False):
     draw = ImageDraw.Draw(background)
     
     # Add logo (centered)
-    if os.path.exists(logo_file):
+    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')):
+        # 双logo模式：film logo + camera logo
+        film_logo_path = film_logs.get(film_name, '')
+        film_logo_img = Image.open(film_logo_path).convert('RGB')
+        camera_logo_img = Image.open(logo_file).convert('RGB')
+        
+        # 调整两个logo尺寸到相同高度
+        camera_logo_width = int(camera_logo_img.width * logo_height / camera_logo_img.height)
+        camera_logo_img = camera_logo_img.resize((camera_logo_width, int(logo_height)))
+        
+        film_logo_width = int(film_logo_img.width * logo_height / film_logo_img.height)
+        film_logo_img = film_logo_img.resize((film_logo_width, int(logo_height)))
+        
+        # 计算两个logo的总宽度（包括间距）
+        total_logos_width = film_logo_width + core.exterior + camera_logo_width
+        
+        # 计算起始位置使两个logo整体居中
+        start_x = (bg_width - total_logos_width) // 2
+        
+        # 粘贴film logo（左）和camera logo（右）
+        background.paste(film_logo_img, (start_x, core.exterior))
+        background.paste(camera_logo_img, (start_x + film_logo_width + core.exterior, core.exterior))
+    elif os.path.exists(logo_file):
+        # 单logo模式
         logo_img = Image.open(logo_file).convert('RGB')
         logo_img = logo_img.resize((int(logo_img.width * logo_height / logo_img.height), int(logo_height)))
         logo_x = (bg_width - logo_img.width) // 2
@@ -227,7 +307,7 @@ def _format_basic2(img, text, logo_file, suppli_info='', *, square=False):
 
 
 
-def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False) -> Image.Image:
+def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_name:str = '', **kwargs) -> Image.Image:
     """
     Layout:
     +----------------+ +------------+
@@ -293,16 +373,37 @@ def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str
     # Calculate element heights
     # Dynamic logo block height based on half of content width
     content_w_for_logo = max(1, left_panel_width - 2 * inner_pad)
-    logo_w_target = max(1, int(content_w_for_logo * 0.66))
     logo_block_h = 0
-    if os.path.exists(logo_file):
+    # 检查是否需要双logo模式
+    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')) and os.path.exists(logo_file):
         try:
+            # 双logo模式：宽度比例改为0.5，垂直堆叠
+            logo_w_target = max(1, int(content_w_for_logo * 0.5))
+            _camera_probe = Image.open(logo_file)
+            _film_probe = Image.open(film_logs.get(film_name, ''))
+            # 计算两个logo各自的高度（基于相同的目标宽度）
+            _camera_ratio = _camera_probe.height / max(1, _camera_probe.width)
+            _film_ratio = _film_probe.height / max(1, _film_probe.width)
+            # 垂直堆叠：总高度 = camera_h + border_size + film_h
+            camera_h = int(logo_w_target * _camera_ratio)
+            film_h = int(logo_w_target * _film_ratio)
+            logo_block_h = camera_h + core.border_size + film_h
+            _camera_probe.close()
+            _film_probe.close()
+        except Exception:
+            logo_block_h = 0
+    elif os.path.exists(logo_file):
+        try:
+            # 单logo模式：宽度比例使用0.66
+            logo_w_target = max(1, int(content_w_for_logo * 0.66))
             _logo_probe = Image.open(logo_file)
             _ratio = _logo_probe.height / max(1, _logo_probe.width)
             _logo_probe.close()
             logo_block_h = int(logo_w_target * _ratio)
         except Exception:
             logo_block_h = 0
+    else:
+        logo_w_target = max(1, int(content_w_for_logo * 0.66))
     color_swatch_h = int(0.8 * core.font_size)
     text1_h = core.font_size * 2  # Some extra space for text
     text2_h = int(core.font_size * 0.9) * 2
@@ -342,11 +443,42 @@ def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str
     current_y = core.exterior + max(0, (total_height - left_block_h) // 2)
 
     # Add logo
-    if os.path.exists(logo_file) and logo_block_h > 0:
+    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')) and os.path.exists(logo_file) and logo_block_h > 0:
         try:
+            # 双logo模式：垂直排列，camera在上，film在下
+            logo_w_target_dual = max(1, int(content_w_for_logo * 0.5))
+            film_logo_path = film_logs.get(film_name, '')
+            film_logo_img = Image.open(film_logo_path).convert('RGBA')
+            camera_logo_img = Image.open(logo_file).convert('RGBA')
+            
+            # 调整两个logo到相同宽度
+            camera_ratio = camera_logo_img.height / max(1, camera_logo_img.width)
+            camera_h = max(1, int(logo_w_target_dual * camera_ratio))
+            camera_logo_img = camera_logo_img.resize((logo_w_target_dual, camera_h))
+            
+            film_ratio = film_logo_img.height / max(1, film_logo_img.width)
+            film_h = max(1, int(logo_w_target_dual * film_ratio*0.8))
+            film_logo_img = film_logo_img.resize((int(logo_w_target_dual*0.8), film_h))
+            
+            # 在左侧面板中水平居中
+            logo_x = (left_panel_width - logo_w_target_dual) // 2
+            
+            # 垂直排列：camera在上，film在下（间距border_size）
+            camera_y = current_y
+            film_y = current_y + camera_h + core.border_size
+            
+            # 粘贴两个logo
+            background.paste(camera_logo_img, (int(logo_x), int(camera_y)), camera_logo_img if camera_logo_img.mode == 'RGBA' else None)
+            background.paste(film_logo_img, (int(logo_x+logo_w_target_dual*0.1), int(film_y)), film_logo_img if film_logo_img.mode == 'RGBA' else None)
+        except Exception as e:
+            print(f"Error loading logos: {e}")
+    elif os.path.exists(logo_file) and logo_block_h > 0:
+        try:
+            # 单logo模式
+            logo_w_target_single = max(1, int(content_w_for_logo * 0.66))
             logo_img = Image.open(logo_file).convert('RGBA')
             logo_ratio = logo_img.height / max(1, logo_img.width)
-            logo_w = logo_w_target
+            logo_w = logo_w_target_single
             logo_h = max(1, int(logo_w * logo_ratio))
             logo_img = logo_img.resize((logo_w, logo_h))
             logo_x = (left_panel_width - logo_w) // 2
@@ -404,7 +536,7 @@ def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str
 
     return background    
 
-def _format_none(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False) -> Image.Image:
+def _format_none(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, **kwargs) -> Image.Image:
     return img
 
 FORMAT_HANDLERS: Dict[str, Callable[..., Image.Image]] = {
@@ -417,11 +549,12 @@ FORMAT_HANDLERS: Dict[str, Callable[..., Image.Image]] = {
 AVAILABLE_FORMAT_KEYS = set(FORMAT_HANDLERS.keys())
 
 def process_one_image(img_input: Image.Image, text: str, logo_file: str, *args,
-                      format: str = 'basic3', suppli_info: str = '', max_length: int = 2400,
-                      add_black_border: bool = True, square: bool = False) -> Image.Image:
+                      format: str = 'basic2', suppli_info: str = '', max_length: int = 2400,
+                      add_black_border: bool = True, square: bool = False, film_name: str = '') -> Image.Image:
     """Dispatch to a registered format handler after applying layout sizing via core.update_tgt_size.
     Backward compatibility: extra positional arg treated as suppli_info unless it's a known format key.
     """
+    # print("Process Params: ", "format: ", format, "suppli_info: ", suppli_info, "max_length: ", max_length, "add_black_border: ", add_black_border, "square: ", square, "film_name: ", film_name)
     if args:
         candidate = args[0]
         if isinstance(candidate, str) and candidate in AVAILABLE_FORMAT_KEYS:
@@ -435,4 +568,4 @@ def process_one_image(img_input: Image.Image, text: str, logo_file: str, *args,
     handler = FORMAT_HANDLERS.get(format)
     if handler is None:
         raise ValueError('format not recognized')
-    return handler(img, text, logo_file, suppli_info=suppli_info, square=square)
+    return handler(img, text, logo_file, suppli_info=suppli_info, square=square, film_name=film_name)

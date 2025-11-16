@@ -142,13 +142,14 @@ def apply_filter(img_input, filter_key: str, strength: float = 0.5):
     return _effects_apply_filter(img_input, filter_key, strength)
 
 
-def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', max_length=2400, add_black_border=True, square=False):
+def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', max_length=2400, add_black_border=True, square=False,film_name=''):
     """Delegate to effects.formats.process_one_image"""
     return _effects_process_one_image(
         img_input, text, logo_file, *args,
         format=format, suppli_info=suppli_info,
         max_length=max_length, add_black_border=add_black_border,
         square=square,
+        film_name=film_name,
     )
 
 

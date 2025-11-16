@@ -25,9 +25,58 @@ def make_width_thumbnail(img: Image.Image, width: int) -> Image.Image:
     return img.resize((new_w, new_h), Image.LANCZOS)
 
 
+def generate_logo_thumbnails(logos_dir='logos', out_dir='img_thumbnail'):
+    """Generate thumbnails for all images in logos directory.
+    Max dimension: 100px, saved to logos/logos-thumbnails
+    """
+    thumbnails_dir = os.path.join(out_dir, logos_dir+'-thumbnails')
+    ensure_dir(thumbnails_dir)
+    
+    if not os.path.exists(logos_dir):
+        print(f"Logos directory not found: {logos_dir}")
+        return
+    
+    # Supported image extensions
+    image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.gif', '.webp'}
+    
+    for filename in os.listdir(logos_dir):
+        file_path = os.path.join(logos_dir, filename)
+        
+        # Skip if not a file or not an image
+        if not os.path.isfile(file_path):
+            continue
+        
+        _, ext = os.path.splitext(filename)
+        if ext.lower() not in image_extensions:
+            continue
+        
+        try:
+            with Image.open(file_path) as img:
+                # Convert to RGB to handle various formats
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # Generate thumbnail with max dimension of 100px
+                thumbnail = make_width_thumbnail(img, 100)
+                
+                # Save thumbnail with same base name
+                thumb_filename = os.path.splitext(filename)[0] + '.jpg'
+                thumb_path = os.path.join(thumbnails_dir, thumb_filename)
+                thumbnail.save(thumb_path, format='JPEG', quality=92)
+                print(f"Generated thumbnail: {thumb_path}")
+        except Exception as e:
+            print(f"Failed to process {filename}: {e}")
+
+
 def main():
+    # Generate logo thumbnails first
+    print("\n=== Generating logo thumbnails ===")
+    out_dir = 'img_thumbnail'
+    generate_logo_thumbnails('logos', out_dir)
+    generate_logo_thumbnails("films", out_dir)
+    
+    print("\n=== Generating filter and format thumbnails ===")
     image_path = os.path.join('.', 'P_1016535.JPG')
-    out_dir = os.path.join('.', 'img_thumbnail')
     ensure_dir(out_dir)
 
     if not os.path.exists(image_path):
@@ -63,7 +112,7 @@ def main():
         return ''
 
     logo_path = pick_logo()
-    text_default = 'Camera Type\n\nLens information '
+    text_default = 'Camera Type: Panasonic DC-S5MII\n\nLens information: Leica Summilux 50mm f/1.4'
 
     for fmt in sorted(FORMAT_KEYS):
         try:
@@ -74,10 +123,11 @@ def main():
                     text=text_default,
                     logo_file=logo_path,
                     format=fmt,
-                    suppli_info='Supplimentary information',
+                    suppli_info='Supplimentary information: you can type your film here',
                     max_length=2000,
                     add_black_border=True,
                     square=False,
+                    film_name='Fujifilm RDP III 135'
                 )
                 thumb = make_width_thumbnail(processed, 600)
                 out_path = os.path.join(out_dir, f"format_{fmt}.jpg")
