@@ -111,12 +111,15 @@ def main():
                 return p
         return ''
 
+    img_list=['P_1016535.JPG','P1032386.jpg','P_0162552.jpg','P_0162490.jpg',]
+
     logo_path = pick_logo()
     text_default = 'Camera Type: Panasonic DC-S5MII\n\nLens information: Leica Summilux 50mm f/1.4'
 
-    for fmt in sorted(FORMAT_KEYS):
+    for idx, fmt in enumerate(sorted(FORMAT_KEYS)):
         try:
-            with Image.open(image_path) as img:
+            current_image_path = os.path.join('.', img_list[idx % len(img_list)])
+            with Image.open(current_image_path) as img:
                 img = img.convert('RGB')
                 processed = process_one_image(
                     img_input=img,
@@ -124,10 +127,10 @@ def main():
                     logo_file=logo_path,
                     format=fmt,
                     suppli_info='Supplimentary information: you can type your film here',
-                    max_length=2000,
+                    max_length=2400,
                     add_black_border=True,
                     square=False,
-                    film_name='Fujifilm RDP III 135'
+                    film_name='FujiFilm Pro Provia 100f 120'
                 )
                 thumb = make_width_thumbnail(processed, 600)
                 out_path = os.path.join(out_dir, f"format_{fmt}.jpg")

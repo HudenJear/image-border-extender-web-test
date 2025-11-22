@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 film_logs={
-  'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+  
   'FujiFilm C200 135':  'films/FujiC200-new-135.jpg',
   'FujiFilm C400 135':  'films/FujiC400-new-135.jpg',
   'FujiFilm Pro Provia 100f 120':  'films/Fujifilm_RDP_III_120.jpg',
@@ -25,12 +25,35 @@ film_logs={
   'FujiFilm Pro Velvia 100 135':  'films/Velvia100-135.jpg',
   'FujiFilm Pro Velvia 50 120':  'films/Velvia_50-120.jpg',
   'FujiFilm Pro Velvia 50 135':  'films/Velvia_50-135.jpg',
+  'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+
   'Kodak Ektachrome 100 Daylight 120':  'films/kodak-film-ektachrome-100-120.webp',
-  'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.webp',
+  'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.jpg',
+
   'Kodak Gold 200 Daylight 120':  'films/kodak-gold-200-120.jpg',
+  'Kodak Gold 200 Daylight 135':  'films/kodak-gold200-135.webp',
+  'Kodak ColorPlus 200 135':       'films/kodak-cp200-135.jpg',
+  'Kodak Ultramax 400 135':        'films/kodak-ultramax400-135.jpg',
+
   'Kodak T-Max 400 135':  'films/kodak-tmax-400-135.jpg',
   'Kodak T-Max 400 120':  'films/kodak-tmax400-120.jpg',
   'Kodak Tri-X 400 135':  'films/kodak-tri-x-400-135.jpg',
+
+  
+  'Kodak Ektachrome 100D 7294':       'films/Ektachrome-100D-7294-190529-HR-1.jpg',
+  'Kodak Vision3 50D 5203':           'films/VISION3-50D-Cans_round_022018_white-5.jpg',
+  'Kodak Vision3 200T 5213':          'films/VISION-200T-filmcans_022018_white-4.jpg',
+  'Kodak Vision3 250D 5207':          'films/VISION3-250D_5207_LARGE-filmcans_-35mm-1000ft-COLORS-3300x3300-1.jpg',
+  'Kodak Vision3 500T 5219':     'films/VISION3_5219_7219_filmcans_022018_white-2.jpg',
+  'Kodak Eastman Double-X 5222': 'films/EASTMAN-DOUBLE-X-5222-7222_180801-3-1.jpg',
+
+  'Lucky Color 200 120':  'films/lucky C200 120.jpg',
+  'Lucky Color 200 135':  'films/lucky C200 135.jpg',
+  'Lucky SHD 100 120':    'films/lucky SHD100 120.jpg',
+  'Lucky SHD 100 135':    'films/lucky SHD100 135.jpg',
+  'Lucky SHD 400 120':    'films/lucky SHD400 1230.jpg',
+  'Lucky SHD 400 135':    'films/lucky SHD400 135.jpg',
+
 }
 
 
