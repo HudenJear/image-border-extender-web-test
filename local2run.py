@@ -16,67 +16,19 @@ from wxcloudrun.effects.formats import (
 
 
 # 相机和镜头配置字典
-text_dict = {
-    'hassel_CF60': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3.5", 'logos/hassel.jpg'],
-    'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
-    'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1.4", 'logos/Olympus.jpg'],
-    'olym_dc35': ["Olympus 35DC\n\nF.Zuiko Auto 40mm F1.7", 'logos/Olympus.jpg'],
-    'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2.8", 'logos/Olympus.jpg'],
-    'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
-    'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
-    'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1.7", 'logos/Minolta.jpg'],
-    'auto_detect': ['', ''],
-    'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay', 'logos/infinity-nikki.jpg'],
-    'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
-    'Rollei': ['Rolleiflex Twin lens 3.5A \n\nCarl Zeiss Opton T* 75mm F3.5', "logos/Rollei.jpg"],
-    'canon_EOS85': ['Canon EOS 7 \n\n Canon EF 85mm f/1.2L II USM', 'logos/canon.jpg'],
-    'canon_EOS40': ['Canon EOS 7 \n\n Canon EF 40mm f/2.8 STM', 'logos/canon.jpg'],
-    'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5', 'logos/pentax.jpg'],
-    'pentax645_4585': ['Pentax 645N II \n\n Pentax smc FA 645 45-85mm f/4.5', 'logos/pentax.jpg'],
-    'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8', 'logos/pentax.jpg'],
-    'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5', 'logos/yashica.jpg'],
-    'leica_VM40': ['Leica M4 film camera \n\n Voigtländer VM 40mm F1.4 Nokton MC', 'logos/Leicalogo.jpg'],
-    'leica_M35': ['Leica M4 film camera \n\n Leica Summicron-M 35mm f1:2', 'logos/Leicalogo.jpg'],
-}
-
-logo_dict = {
-    'hassel_CF60': 'logos/hassel.jpg',
-    'hassel_CF150': 'logos/hassel.jpg',
-    'olym_50': 'logos/Olympus.jpg',
-    'olym_dc35': 'logos/Olympus.jpg',
-    'olym_135': 'logos/Olympus.jpg',
-    'olym_2848': 'logos/Olympus.jpg',
-    'mamiya_six': 'logos/mamiya.jpg',
-    'minolta': 'logos/Minolta.jpg',
-    'SONY': 'logos/Sony-Alpha-Logo.png',
-    'Panasonic': 'logos/LumixS.jpg',
-    'Canon': "logos/canon-r-logo.jpg",
-    'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
-    'OLYMPUS CORPORATION': "logos/Olympus-new.png",
-    'NIKON CORPORATION': "logos/Olympus-new.png",
-    'FUJIFILM': "logos/fujifilm.jpg",
-    'Bronica': "logos/bronica.jpg",
-    'Rollei': "logos/Rollei.jpg",
-    'canon_EOS85': 'logos/canon.jpg',
-    'canon_EOS40': 'logos/canon.jpg',
-    'pentax645_80160': 'logos/pentax.jpg',
-    'pentax645_4585': 'logos/pentax.jpg',
-    'pentax645_75': 'logos/pentax.jpg',
-    'yashica124g': 'logos/yashica.jpg',
-    'leica_VM40': 'logos/Leicalogo.jpg',
-    'leica_M35': 'logos/Leicalogo.jpg',
-}
+from wxcloudrun.assets_data import text_dict, logo_dict
 
 
 def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', 
-                      max_length=2400, add_black_border=True, film_name='',square=False):
+                      max_length=2400, add_black_border=True, film_file='', film_name='',square=False):
     """委托给effects.formats.process_one_image"""
+    film_logo_file = film_file or film_name
     return _effects_process_one_image(
         img_input, text, logo_file, *args,
         format=format, suppli_info=suppli_info,
         max_length=max_length, add_black_border=add_black_border,
         square=square,
-        film_name=film_name,
+        film_file=film_logo_file,
     )
 
 
@@ -99,8 +51,9 @@ def parse_arguments():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
+
 # film_logs={
-#   'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+  
 #   'FujiFilm C200 135':  'films/FujiC200-new-135.jpg',
 #   'FujiFilm C400 135':  'films/FujiC400-new-135.jpg',
 #   'FujiFilm Pro Provia 100f 120':  'films/Fujifilm_RDP_III_120.jpg',
@@ -109,13 +62,37 @@ def parse_arguments():
 #   'FujiFilm Pro Velvia 100 135':  'films/Velvia100-135.jpg',
 #   'FujiFilm Pro Velvia 50 120':  'films/Velvia_50-120.jpg',
 #   'FujiFilm Pro Velvia 50 135':  'films/Velvia_50-135.jpg',
+#   'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+
 #   'Kodak Ektachrome 100 Daylight 120':  'films/kodak-film-ektachrome-100-120.webp',
-#   'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.webp',
+#   'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.jpg',
+
 #   'Kodak Gold 200 Daylight 120':  'films/kodak-gold-200-120.jpg',
+#   'Kodak Gold 200 Daylight 135':  'films/kodak-gold200-135.webp',
+#   'Kodak ColorPlus 200 135':       'films/kodak-cp200-135.jpg',
+#   'Kodak Ultramax 400 135':        'films/kodak-ultramax400-135.jpg',
+
 #   'Kodak T-Max 400 135':  'films/kodak-tmax-400-135.jpg',
 #   'Kodak T-Max 400 120':  'films/kodak-tmax400-120.jpg',
 #   'Kodak Tri-X 400 135':  'films/kodak-tri-x-400-135.jpg',
+
+  
+#   'Kodak Ektachrome 100D 7294':       'films/Ektachrome-100D-7294-190529-HR-1.jpg',
+#   'Kodak Vision3 50D 5203':           'films/VISION3-50D-Cans_round_022018_white-5.jpg',
+#   'Kodak Vision3 200T 5213':          'films/VISION-200T-filmcans_022018_white-4.jpg',
+#   'Kodak Vision3 250D 5207':          'films/VISION3-250D_5207_LARGE-filmcans_-35mm-1000ft-COLORS-3300x3300-1.jpg',
+#   'Kodak Vision3 500T 5219':     'films/VISION3_5219_7219_filmcans_022018_white-2.jpg',
+#   'Kodak Eastman Double-X 5222': 'films/EASTMAN-DOUBLE-X-5222-7222_180801-3-1.jpg',
+
+#   'Lucky Color 200 120':  'films/lucky C200 120.jpg',
+#   'Lucky Color 200 135':  'films/lucky C200 135.jpg',
+#   'Lucky SHD 100 120':    'films/lucky SHD100 120.jpg',
+#   'Lucky SHD 100 135':    'films/lucky SHD100 135.jpg',
+#   'Lucky SHD 400 120':    'films/lucky SHD400 1230.jpg',
+#   'Lucky SHD 400 135':    'films/lucky SHD400 135.jpg', 
+
 # }
+
 
     # 必需参数
     parser.add_argument('--src', type=str, 
@@ -128,15 +105,15 @@ def parse_arguments():
     # 图片处理参数
     parser.add_argument('--max-length', type=int, default=2400,
                         help='输出图片的最大边长')
-    parser.add_argument('--format', type=str, default='basic1',
+    parser.add_argument('--format', type=str, default='basic2',
                         choices=list(AVAILABLE_FORMAT_KEYS),
                         help='图片格式样式')
     parser.add_argument('--square', action='store_true',
                         help='输出正方形图片')
     parser.add_argument('--add-black-border', type=bool, default=False,
                         help='是否添加黑色边框')
-    parser.add_argument('--film-name', type=str, default='FujiFilm Pro Provia 100f 120',
-                        help='胶卷名称')
+    parser.add_argument('--film-file', '--film-name', dest='film_file', type=str, default='films/FujiC200-new-135.jpg',
+                        help='胶卷logo文件路径')
     
     # 补充信息
     parser.add_argument('--suppli-info', type=str, default='',
@@ -150,7 +127,7 @@ def parse_arguments():
 
 
 def process_images(src, tgt, format='basic3', suppli_info='', max_length=2400, 
-                   add_black_border=True, square=False, film_name='',verbose=False):
+                   add_black_border=True, square=False, film_file='',verbose=False):
     """批量处理图片的主逻辑"""
     initializing_directories(src, tgt)
     
@@ -186,17 +163,22 @@ def process_images(src, tgt, format='basic3', suppli_info='', max_length=2400,
                     # 读取图片
                     img = Image.open(img_path).convert('RGB')
                     
+                    # 根据图片纵横比在 basic2 / basic3 之间自动切换
+                    current_format = format
+                    if format == 'basic2' and img.height > 1.2 * img.width:
+                        current_format = 'basic3'
+
                     # 调用统一的process_one_image函数
                     processed_img = process_one_image(
-                        img, 
-                        text_line, 
+                        img,
+                        text_line,
                         logo_path,
-                        format=format,
+                        format=current_format,
                         suppli_info=suppli_info,
                         max_length=max_length,
                         add_black_border=add_black_border,
                         square=square,
-                        film_name=film_name,
+                        film_file=film_file,
                     )
                     
                     # 保存处理后的图片
@@ -228,10 +210,10 @@ def main():
     if args.suppli_info != '':
       suppli_info=args.suppli_info
       print(f'补充信息: {args.suppli_info}')
-      print(f'胶卷型号: {args.film_name}')
+      print(f'胶卷logo: {args.film_file}')
     else:
-      suppli_info=args.film_name
-      print(f'补充信息: {args.film_name}')
+      suppli_info=args.film_file
+      print(f'补充信息: {args.film_file}')
     print(f'正方形输出: {args.square}')
     print(f'添加黑边: {args.add_black_border}')
     print('=' * 60)
@@ -245,7 +227,7 @@ def main():
         add_black_border=args.add_black_border,
         square=args.square,
         verbose=args.verbose,
-        film_name=args.film_name,
+        film_file=args.film_file,
     )
     
     print('\n所有处理完成！')

@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, request, send_file, url_for, after_this_request
+from flask import render_template, request, send_file, url_for, after_this_request, send_from_directory
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -7,6 +7,7 @@ from PIL import Image,ImageDraw,ImageFont,ImageOps
 from PIL.ExifTags import TAGS
 import piexif
 import  os,glob,io
+import re
 import numpy as np
 import json
 import uuid
@@ -35,6 +36,130 @@ temp_image_dir = 'temp_images'
 def debug_static():
     static_path = app.static_folder
     return f"Static folder: {static_path}"
+
+
+_RE_SLUG = re.compile(r'[^a-z0-9]+')
+
+
+def _slugify(value: str) -> str:
+    v = (value or '').strip().lower()
+    v = _RE_SLUG.sub('_', v).strip('_')
+    return v
+
+
+def _prettify_name(stem: str) -> str:
+    stem = (stem or '').replace('_', ' ').replace('-', ' ').strip()
+    stem = re.sub(r'\s+', ' ', stem)
+    return stem.title() if stem else ''
+
+
+def _pick_short(name: str) -> str:
+    name = (name or '').strip()
+    if not name:
+        return ''
+    parts = re.split(r'\s+', name)
+    for p in parts:
+        if any(ch.isdigit() for ch in p):
+            return p
+    for p in parts:
+        if p.isalpha() and len(p) >= 4:
+            return p[:6]
+    return name[:6]
+
+
+def _project_root() -> str:
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
+
+def _img_thumbnail_root() -> str:
+    return os.path.join(app.static_folder, 'img_thumbnail')
+
+
+def _find_thumbnail_filename(thumb_dir: str, original_filename: str) -> str:
+    stem, _ext = os.path.splitext(original_filename)
+    candidates = [stem + '.jpg', stem + '.jpeg', stem + '.png', stem + '.webp', original_filename]
+    for c in candidates:
+        p = os.path.join(thumb_dir, c)
+        if os.path.exists(p):
+            return c
+    return ''
+
+
+@app.route('/logos-thumbnails/<path:filename>')
+def logos_thumbnails(filename):
+    base = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
+    return send_from_directory(base, filename)
+
+
+@app.route('/films-thumbnails/<path:filename>')
+def films_thumbnails(filename):
+    base = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
+    return send_from_directory(base, filename)
+
+
+@app.route('/api/logo_film_list', methods=['GET'])
+def logo_film_list():
+    logos_thumb_dir = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
+    films_thumb_dir = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
+
+    from wxcloudrun.assets_data import film_logs as _film_logs, text_dict as _text_dict, logo_dict as _logo_dict
+
+    # logos：从 text_dict 提取 logo 路径，但按 logo 文件去重后输出（更接近“所有logo文件列表”）
+    logos_by_value = {}
+    for k in sorted(_text_dict.keys()):
+        item = _text_dict.get(k)
+        if not isinstance(item, (list, tuple)) or len(item) < 2:
+            continue
+        logo_path = item[1]
+        if not isinstance(logo_path, str) or not logo_path:
+            continue
+        value = logo_path.replace('\\', '/')
+        if value in logos_by_value:
+            continue
+
+        logo_fn = os.path.basename(value)
+        stem = os.path.splitext(logo_fn)[0]
+        name = _prettify_name(stem)
+        thumb_url = ''
+        thumb_fn = _find_thumbnail_filename(logos_thumb_dir, logo_fn)
+        if thumb_fn:
+            thumb_url = url_for('static', filename=f"img_thumbnail/logos-thumbnails/{thumb_fn}", _external=True)
+
+        logos_by_value[value] = {
+            'key': _slugify(stem),
+            'name': name,
+            'short': _pick_short(name),
+            'thumb': thumb_url,
+            'value': value,
+        }
+
+    logos = list(logos_by_value.values())
+
+    # filmlogos：以 film_logs 的 key/value 为准
+    filmlogos = []
+    for film_name in sorted(_film_logs.keys()):
+        film_rel = (_film_logs.get(film_name) or '').replace('\\', '/')
+        if not film_rel:
+            continue
+        thumb_url = ''
+        film_fn = os.path.basename(film_rel)
+        thumb_fn = _find_thumbnail_filename(films_thumb_dir, film_fn)
+        if thumb_fn:
+            thumb_url = url_for('static', filename=f"img_thumbnail/films-thumbnails/{thumb_fn}", _external=True)
+        filmlogos.append({
+            'key': _slugify(film_name),
+            'name': film_name,
+            'short': _pick_short(film_name),
+            'thumb': thumb_url,
+            'value': film_rel,
+        })
+
+    payload = {
+        'logos': logos,
+        'filmlogos': filmlogos,
+        'version': datetime.now().strftime('%Y-%m-%d'),
+    }
+    return make_succ_response(payload)
 
 
 @app.route('/')
@@ -233,7 +358,7 @@ def image_upload():
             text=' \n\n '
             logo_file='logos/hassel.jpg'
             suppli_info=' '
-            film_name=''
+            film_file=''
             if 'infor_params' in request.form:
               params = json.loads(request.form.get('infor_params', '{}'))
               use_info_option=params.get('use_info_option') if params.get('use_info_option') else False
@@ -243,7 +368,7 @@ def image_upload():
                 suppli_info = params.get('suppli_info') if params.get('suppli_info') else ' '
                 text = params.get('text') if params.get('text') else ' \n\n '
                 logo_file = params.get('logo_file') if params.get('logo_file') else 'logos/hassel.jpg'
-                film_name = params.get('film_name') if params.get('film_name') else ''
+                film_file = params.get('film_file') if params.get('film_file') else (params.get('film_name') if params.get('film_name') else '')
               # img=process_one_image(img,text,logo_file,suppli_info,max_length,add_black_border)
               else:
                   res_info='不使用信息参数'
@@ -271,7 +396,7 @@ def image_upload():
           logging.info(f'apply filter: {filter_key} failed: {e}')
         # apply border and text
         try:
-            img=process_one_image(img,text,logo_file,suppli_info,format=format_key,max_length=max_length,add_black_border=add_black_border,square=extend_to_square,film_name=film_name)
+            img=process_one_image(img,text,logo_file,suppli_info,format=format_key,max_length=max_length,add_black_border=add_black_border,square=extend_to_square,film_file=film_file)
             # 微信小程序无法接收二进制文件流，这是因为uploadfile和request.files之间的区别导致的，这个问题时微信自己的api限制，并不是本程序的问题
             # # 返回处理后的图片(图片流)
         except Exception as e:

@@ -5,7 +5,6 @@ import piexif
 import numpy as np
 import logging
 
-# from .localrun import text_dict, logo_dict
 from .color_extract import extract_main_colors
 
 logging.basicConfig(
@@ -16,70 +15,6 @@ logging.basicConfig(
 
 using_font=r'fonts/LXGWBright-Italic.ttf'
 
-# suppli_info="Kodak Vision3 5219 500T 120"
-# suppli_info="Kodak Vision3 5207 250T 120"
-# suppli_info="Kodak EktarChrome 5294 100D 135"
-suppli_info="FUJICHROME Velvia 100 Daylight 120"
-# suppli_info="FUJICHROME Provia 100f Daylight 120"
-# suppli_info=None
-
-
-
-text_dict={
-    'hassel_CF60':["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 60mm F3.5",'logos/hassel.jpg'],
-    'hassel_CF150': ["Hasselblad 500CM Type.1990s\n\nCarl Zeiss CF 150mm F4", 'logos/hassel.jpg'],
-    'olym_50': ["Olympus OM-30\n\nG.Zuiko Auto-S 50mm F1.4", 'logos/Olympus.jpg'],
-    'olym_135': ["Olympus OM-30\n\nZuiko MC Auto-T 135mm F2.8", 'logos/Olympus.jpg'],
-    'olym_2848': ["Olympus OM-30\n\nZuiko S Auto-Zoom 28-48mm F4", 'logos/Olympus.jpg'],
-    'mamiya_six': ["Mamiya-Six Type.K-1953\n\nOlympus D.Zuiko F.C. 75mm F3.5 Sekorsha", 'logos/mamiya.jpg'],
-    'minolta': ["Minolta Hi-Matic E \n\nRokkor-QF 40mm F1.7", 'logos/Minolta.jpg'],
-    'auto_detect':['',''],
-    'infinity_nikki': ['Miracle Continent 奇迹大陆\n\nPhotogragher: Fay','logos/infinity-nikki.jpg'],
-    'Bronica': ['Zenza Bronica ETR-S \n\nZenzanon MC 75mm F2.8', "logos/bronica.jpg"],
-    'Rollei': ['Rolleiflex Twin lens 3.5A \n\nCarl Zeiss Opton T* 75mm F3.5', "logos/Rollei.jpg"],
-    'canon_EOS85': ['Canon EOS 7 \n\n Canon EF 85mm f/1.2L II USM','logos/canon.jpg'],
-    'canon_EOS40': ['Canon EOS 7 \n\n Canon EF 40mm f/2.8 STM','logos/canon.jpg'],
-    'pentax645_80160': ['Pentax 645N II \n\n Pentax smc FA 645 80-160mm f/4.5','logos/pentax.jpg'],
-    'pentax645_75': ['Pentax 645N II \n\n Pentax smc FA 645 75mm f/2.8','logos/pentax.jpg'],
-    'yashica124g': ['Yashica-MAT 124G \n\n Yashinon 80mm F3.5','logos/yashica.jpg'],
-    
-
-
-
-}
-logo_dict={
-'hassel_CF60':'logos/hassel.jpg',
-    'hassel_CF150': 'logos/hassel.jpg',
-    'olym_50':'logos/Olympus.jpg',
-    'olym_135': 'logos/Olympus.jpg',
-    'olym_2848': 'logos/Olympus.jpg',
-    'mamiya_six': 'logos/mamiya.jpg',
-    'minolta':'logos/Minolta.jpg',
-    'SONY':'logos/Sony-Alpha-Logo.png',
-    'Panasonic': 'logos/LumixS.jpg',
-    'Canon': "logos/canon-r-logo.jpg",
-    'OLYMPUS IMAGING CORP.  ': "logos/Olympus-new.png",
-    'OLYMPUS CORPORATION': "logos/Olympus-new.png",
-    'NIKON CORPORATION': "logos/Olympus-new.png",
-    'FUJIFILM': "logos/fujifilm.jpg",
-    'Bronica': "logos/bronica.jpg",
-    'Rollei': "logos/Rollei.jpg",
-    'canon_EOS85': 'logos/canon.jpg',
-    'canon_EOS40':  'logos/canon.jpg',
-    'pentax645_80160': 'logos/pentax.jpg',
-    'pentax645_75': 'logos/pentax.jpg',
-    'yashica124g': 'logos/yashica.jpg',
-    'Leica': 'logos/Leicalogo.jpg',
-
-}
-# def initializing_directories():
-#     if not os.path.exists(tgt):
-#         os.mkdir(tgt)
-#     if not os.path.exists(src):
-#         os.mkdir(src)
-#     for dir_name in list(text_dict.keys()):
-#         if not os.path.exists(os.path.join(src,dir_name)):
-#             os.mkdir(os.path.join(src,dir_name))
 tgt_size=2400
 border_size=int(0.01*tgt_size)
 border_color='black'
@@ -142,14 +77,15 @@ def apply_filter(img_input, filter_key: str, strength: float = 0.5):
     return _effects_apply_filter(img_input, filter_key, strength)
 
 
-def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', max_length=2400, add_black_border=True, square=False,film_name=''):
+def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', max_length=2400, add_black_border=True, square=False, film_file='', film_name=''):
     """Delegate to effects.formats.process_one_image"""
+    film_logo_file = film_file or film_name
     return _effects_process_one_image(
         img_input, text, logo_file, *args,
         format=format, suppli_info=suppli_info,
         max_length=max_length, add_black_border=add_black_border,
         square=square,
-        film_name=film_name,
+        film_file=film_logo_file,
     )
 
 

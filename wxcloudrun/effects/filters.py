@@ -3,6 +3,28 @@ from pathlib import Path
 import numpy as np
 import time
 
+from .filter_utils import clamp01 as _clamp01
+from .filter_utils import scale_factor as _scale_factor
+from .filter_utils import apply_film_grain as _apply_film_grain
+from .filter_utils import float_rgb_to_image
+from .filter_utils import image_to_float_rgb
+from .filter_utils import luminance_from_rgb
+from .filter_utils import mask_above
+from .filter_utils import mask_below
+from .filter_utils import contrast_about_mid
+from .filter_utils import apply_white_balance
+from .filter_utils import apply_matrix_3x3
+from .filter_utils import apply_highlight_lift
+from .filter_utils import apply_tint_mask
+from .filter_utils import desaturate_to_gray_mask
+from .filter_utils import apply_rgb_gain_mask
+from .filter_utils import apply_scalar_gain_mask
+from .filter_utils import apply_channel_mul
+from .filter_utils import blue_dominance_mask
+from .filter_utils import green_dominance_mask
+from .filter_utils import red_dominance_mask
+from .filter_utils import yellow_dominance_mask
+
 __all__ = [
     'apply_filter',
     'FILTER_HANDLERS',
@@ -10,49 +32,8 @@ __all__ = [
 ]
 
 
-def _clamp01(x: float) -> float:
-    return 0.0 if x < 0 else 1.0 if x > 1 else x
-
-
-def _scale_factor(base_at_half: float, strength: float) -> float:
-    """
-    Map strength in [0,1] to a multiplicative factor.
-    - 0.5 => base_at_half (existing baseline)
-    - 1.0 => 1 + (base_at_half-1)*2
-    - 0.0 => 1.0
-    """
-    s = _clamp01(strength)
-    k = s / 0.5 if s > 0 else 0.0
-    return 1.0 + (base_at_half - 1.0) * k
-
-
 def _filter_none(img: Image.Image, strength: float) -> Image.Image:
     return img
-
-def _apply_film_grain(arr_t, s, mid, sigma_base, sigma_slope, cw):
-    if s <= 0:
-        return arr_t
-    h, w, _ = arr_t.shape
-    l_hw = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
-    w_mid = 1.0 - np.clip(np.abs(l_hw - mid) * 2.0, 0.0, 1.0)
-    sigma = sigma_base + sigma_slope * s
-    # Cheaper grain: generate low-res shared noise and upsample
-    # Choose a fixed downscale factor to reduce RNG cost while preserving visual character
-    ds = 4
-    lh = max(1, h // ds)
-    lw = max(1, w // ds)
-    # Single-channel low-res noise
-    noise_lr = np.random.normal(0.0, sigma, size=(lh, lw, 1)).astype(np.float32)
-    # Upsample via nearest neighbor using simple repeats, then crop to exact size
-    rep_h = int(np.ceil(h / lh))
-    rep_w = int(np.ceil(w / lw))
-    noise = np.repeat(np.repeat(noise_lr, rep_h, axis=0), rep_w, axis=1)[:h, :w, :]
-    # Weight by mid-tone mask
-    noise = noise * w_mid[:, :, None]
-    # Reuse the same noise field across channels with gentle color weighting
-    cw_arr = np.array(cw, dtype=np.float32)
-    noise3 = noise * cw_arr[None, None, :]
-    return np.clip(arr_t + noise3, 0.0, 1.0)
 
 def _filter_black_white(img: Image.Image, strength: float) -> Image.Image:
     gray = ImageOps.grayscale(img).convert('RGB')
@@ -136,13 +117,13 @@ def _filter_film_kodak_5219(img: Image.Image, strength: float) -> Image.Image:
         return img
     color_f = _scale_factor(0.80, s)
     base = ImageEnhance.Color(img).enhance(color_f)
-    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = image_to_float_rgb(base)
     r = arr[:, :, 0]
     g = arr[:, :, 1]
     b = arr[:, :, 2]
-    l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    hl = np.clip((l - 0.55) / 0.45, 0.0, 1.0)
-    sh = np.clip((0.35 - l) / 0.35, 0.0, 1.0)
+    l = luminance_from_rgb(r, g, b)
+    hl = mask_above(l, 0.55, 0.45)
+    sh = mask_below(l, 0.35, 0.35)
     a = 1.4 * s
     l_f = l / (1.0 + a * l)
     l_new = l * (1.0 - hl) + l_f * hl
@@ -177,13 +158,10 @@ def _filter_film_kodak_5219(img: Image.Image, strength: float) -> Image.Image:
         [-0.015 * s, 1.0, 0.000],
         [0.000, -0.015 * s, 1.0],
     ], dtype=np.float32)
-    h_, w_, _ = arr_t.shape
-    arr_t = arr_t.reshape(-1, 3) @ m.T
-    arr_t = arr_t.reshape(h_, w_, 3)
+    arr_t = apply_matrix_3x3(arr_t, m)
     arr_t = np.clip(arr_t, 0.0, 1.0)
     arr_t = _apply_film_grain(arr_t, s, mid=0.5, sigma_base=0.06, sigma_slope=0.08, cw=[0.95, 1.00, 1.18])
-    out = (arr_t * 255.0 + 0.5).astype('uint8')
-    return Image.fromarray(out, mode='RGB')
+    return float_rgb_to_image(arr_t)
 
 
 def _filter_film_kodak_e100(img: Image.Image, strength: float) -> Image.Image:
@@ -192,44 +170,37 @@ def _filter_film_kodak_e100(img: Image.Image, strength: float) -> Image.Image:
         return img
     color_f = _scale_factor(0.95, s)
     base = ImageEnhance.Color(img).enhance(color_f)
-    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = image_to_float_rgb(base)
     r = arr[:, :, 0]
     g = arr[:, :, 1]
     b = arr[:, :, 2]
-    l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    hl = np.clip((l - 0.55) / 0.45, 0.0, 1.0)
+    l = luminance_from_rgb(r, g, b)
+    hl = mask_above(l, 0.55, 0.45)
     mid = 0.5
     cf = 1.0 + 0.25 * s
-    r = mid + (r - mid) * cf
-    g = mid + (g - mid) * cf
-    b = mid + (b - mid) * cf
+    r = contrast_about_mid(r, cf, mid)
+    g = contrast_about_mid(g, cf, mid)
+    b = contrast_about_mid(b, cf, mid)
     arr_t = np.stack([r, g, b], axis=-1)
     wb = np.array([1.0 - 0.020 * s, 1.0 - 0.005 * s, 1.0 + 0.060 * s], dtype=np.float32)
-    arr_t = np.clip(arr_t * wb[None, None, :], 0.0, 1.0)
+    arr_t = apply_white_balance(arr_t, wb)
     antiR = 0.06 * s * hl
-    arr_t[:, :, 0] = np.clip(arr_t[:, :, 0] * (1.0 - antiR), 0.0, 1.0)
-    r2 = arr_t[:, :, 0]
-    g2 = arr_t[:, :, 1]
-    b2 = arr_t[:, :, 2]
-    blue_rel = b2 - 0.5 * (r2 + g2)
-    blue_mask = np.clip(blue_rel * 2.0, 0.0, 1.0)
+    arr_t = apply_channel_mul(arr_t, 0, (1.0 - antiR))
+    blue_mask = blue_dominance_mask(arr_t, scale=2.0)
     desat_other = 0.06 * s * (1.0 - blue_mask)
-    l2 = (0.2126 * r2 + 0.7152 * g2 + 0.0722 * b2)
-    arr_t[:, :, 0] = arr_t[:, :, 0] * (1.0 - desat_other) + l2 * desat_other
-    arr_t[:, :, 1] = arr_t[:, :, 1] * (1.0 - desat_other) + l2 * desat_other
-    arr_t[:, :, 2] = arr_t[:, :, 2] * (1.0 - desat_other) + l2 * desat_other
+    l2 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
+    arr_t = desaturate_to_gray_mask(arr_t, l2, desat_other)
     boost_b = 0.28 * s * blue_mask
-    arr_t[:, :, 2] = np.clip(arr_t[:, :, 2] * (1.0 + boost_b), 0.0, 1.0)
+    arr_t = apply_channel_mul(arr_t, 2, (1.0 + boost_b))
     l3 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
     hl3 = np.clip((l3 - 0.55) / 0.45, 0.0, 1.0)
     sh3 = np.clip((0.45 - l3) / 0.45, 0.0, 1.0)
     c_boost = 0.20 * s
     arr_t = np.clip((arr_t - 0.5) * (1.0 + c_boost) + 0.5, 0.0, 1.0)
-    arr_t = np.clip(arr_t * (1.0 + 0.10 * s * hl3[..., None]), 0.0, 1.0)
-    arr_t = np.clip(arr_t * (1.0 - 0.10 * s * sh3[..., None]), 0.0, 1.0)
+    arr_t = apply_scalar_gain_mask(arr_t, (1.0 + 0.10 * s * hl3))
+    arr_t = apply_scalar_gain_mask(arr_t, (1.0 - 0.10 * s * sh3))
     arr_t = _apply_film_grain(arr_t, s, mid=0.5, sigma_base=0.008, sigma_slope=0.015, cw=[0.98, 1.00, 1.05])
-    out = (arr_t * 255.0 + 0.5).astype('uint8')
-    return Image.fromarray(out, mode='RGB')
+    return float_rgb_to_image(arr_t)
 
 
 
@@ -243,74 +214,60 @@ def _filter_film_fuji_c100(img: Image.Image, strength: float) -> Image.Image:
     color_f = _scale_factor(0.90, s)
     base = ImageEnhance.Color(img).enhance(color_f)
 
-    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = image_to_float_rgb(base)
     r = arr[:, :, 0]
     g = arr[:, :, 1]
     b = arr[:, :, 2]
 
     # Luminance and tone regions
-    l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    hl = np.clip((l - 0.55) / 0.45, 0.0, 1.0)  # highlights
-    sh = np.clip((0.40 - l) / 0.40, 0.0, 1.0)  # shadows
+    l = luminance_from_rgb(r, g, b)
+    hl = mask_above(l, 0.55, 0.45)  # highlights
+    sh = mask_below(l, 0.40, 0.40)  # shadows
 
     # Increase overall contrast (C100 has higher contrast)
     mid = 0.5
     cf = 1.0 + 0.44 * s
-    r = mid + (r - mid) * cf
-    g = mid + (g - mid) * cf
-    b = mid + (b - mid) * cf
+    r = contrast_about_mid(r, cf, mid)
+    g = contrast_about_mid(g, cf, mid)
+    b = contrast_about_mid(b, cf, mid)
 
     # Slightly cooler temperature (reduce R, increase B)
     wb = np.array([1.0 - 0.040 * s, 1.0, 1.0 + 0.100 * s], dtype=np.float32)
     arr_t = np.stack([r, g, b], axis=-1)
-    arr_t = np.clip(arr_t * wb[None, None, :], 0.0, 1.0)
+    arr_t = apply_white_balance(arr_t, wb)
 
     # Emphasize greens: boost green where it's relatively dominant; slightly pull R/B there
-    r2 = arr_t[:, :, 0]
-    g2 = arr_t[:, :, 1]
-    b2 = arr_t[:, :, 2]
-    green_rel = g2 - 0.5 * (r2 + b2)
-    green_mask = np.clip(green_rel * 2.0, 0.0, 1.0)
+    green_mask = green_dominance_mask(arr_t, scale=2.0)
     boost_g = 0.56 * s * green_mask
-    arr_t[:, :, 1] = np.clip(g2 * (1.0 + boost_g), 0.0, 1.0)
-    arr_t[:, :, 0] = np.clip(r2 * (1.0 - 0.10 * s * green_mask), 0.0, 1.0)
-    arr_t[:, :, 2] = np.clip(b2 * (1.0 - 0.06 * s * green_mask), 0.0, 1.0)
+    arr_t = apply_channel_mul(arr_t, 1, (1.0 + boost_g))
+    arr_t = apply_channel_mul(arr_t, 0, (1.0 - 0.10 * s * green_mask))
+    arr_t = apply_channel_mul(arr_t, 2, (1.0 - 0.06 * s * green_mask))
 
     # Slightly desaturate non-green areas so green hue stands out
-    r3 = arr_t[:, :, 0]
-    g3 = arr_t[:, :, 1]
-    b3 = arr_t[:, :, 2]
-    l2 = (0.2126 * r3 + 0.7152 * g3 + 0.0722 * b3)
     desat_other = 0.16 * s * (1.0 - green_mask)
-    arr_t[:, :, 0] = r3 * (1.0 - desat_other) + l2 * desat_other
-    arr_t[:, :, 1] = g3 * (1.0 - desat_other) + l2 * desat_other
-    arr_t[:, :, 2] = b3 * (1.0 - desat_other) + l2 * desat_other
+    l2 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
+    arr_t = desaturate_to_gray_mask(arr_t, l2, desat_other)
 
     # Highlights push towards brighter/whiter
     l3 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
     hl3 = np.clip((l3 - 0.55) / 0.45, 0.0, 1.0)
     lift_mul = 0.24 * s
     lift_add = 0.12 * s
-    arr_t = np.clip(arr_t * (1.0 + lift_mul * hl3[..., None]) + lift_add * hl3[..., None], 0.0, 1.0)
+    arr_t = apply_highlight_lift(arr_t, hl3, lift_mul=lift_mul, lift_add=lift_add)
     # Desaturate highlights slightly to appear more neutral/white
     l4 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
     desat_hl = 0.20 * s * hl3
-    arr_t[:, :, 0] = arr_t[:, :, 0] * (1.0 - desat_hl) + l4 * desat_hl
-    arr_t[:, :, 1] = arr_t[:, :, 1] * (1.0 - desat_hl) + l4 * desat_hl
-    arr_t[:, :, 2] = arr_t[:, :, 2] * (1.0 - desat_hl) + l4 * desat_hl
+    arr_t = desaturate_to_gray_mask(arr_t, l4, desat_hl)
 
     # Shadows tint slightly green
     tint_sh = np.array([185.0/255.0, 215.0/255.0, 185.0/255.0], dtype=np.float32)
     a_sh = 0.32 * s
-    arr_t[:, :, 0] = arr_t[:, :, 0] * (1.0 - a_sh * sh) + tint_sh[0] * (a_sh * sh)
-    arr_t[:, :, 1] = arr_t[:, :, 1] * (1.0 - a_sh * sh) + tint_sh[1] * (a_sh * sh)
-    arr_t[:, :, 2] = arr_t[:, :, 2] * (1.0 - a_sh * sh) + tint_sh[2] * (a_sh * sh)
+    arr_t = apply_tint_mask(arr_t, tint_sh, (a_sh * sh))
 
     # Fine film-like grain slightly stronger in mid/highs and a touch cooler
     arr_t = _apply_film_grain(arr_t, s, mid=0.55, sigma_base=0.016, sigma_slope=0.024, cw=[0.96, 1.00, 1.08])
 
-    out = (arr_t * 255.0 + 0.5).astype('uint8')
-    return Image.fromarray(out, mode='RGB')
+    return float_rgb_to_image(arr_t)
 
 def _filter_film_kodak_g200(img: Image.Image, strength: float) -> Image.Image:
     s = _clamp01(strength)
@@ -318,45 +275,39 @@ def _filter_film_kodak_g200(img: Image.Image, strength: float) -> Image.Image:
         return img
     color_f = _scale_factor(1.08, s)
     base = ImageEnhance.Color(img).enhance(color_f)
-    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = image_to_float_rgb(base)
     r = arr[:, :, 0]
     g = arr[:, :, 1]
     b = arr[:, :, 2]
-    l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    hl = np.clip((l - 0.55) / 0.45, 0.0, 1.0)
-    sh = np.clip((0.35 - l) / 0.35, 0.0, 1.0)
+    l = luminance_from_rgb(r, g, b)
+    hl = mask_above(l, 0.55, 0.45)
+    sh = mask_below(l, 0.35, 0.35)
     mid = 0.5
     cf = 1.0 + 0.25 * s * (1.0 - hl)
-    r = mid + (r - mid) * cf
-    g = mid + (g - mid) * cf
-    b = mid + (b - mid) * cf
+    r = contrast_about_mid(r, cf, mid)
+    g = contrast_about_mid(g, cf, mid)
+    b = contrast_about_mid(b, cf, mid)
     wb = np.array([1.0 + 0.06 * s, 1.0 + 0.03 * s, 1.0 - 0.02 * s], dtype=np.float32)
     arr_t = np.stack([r, g, b], axis=-1)
-    arr_t = np.clip(arr_t * wb[None, None, :], 0.0, 1.0)
+    arr_t = apply_white_balance(arr_t, wb)
     l2 = (0.2126 * arr_t[:, :, 0] + 0.7152 * arr_t[:, :, 1] + 0.0722 * arr_t[:, :, 2])
     hl2 = np.clip((l2 - 0.5) / 0.5, 0.0, 1.0)
     warm_hl = np.array([1.0 + 0.10 * s, 1.0 + 0.06 * s, 1.0 - 0.02 * s], dtype=np.float32)
-    arr_t = np.clip(arr_t * (1.0 + (warm_hl[None, None, :] - 1.0) * hl2[..., None]), 0.0, 1.0)
+    arr_t = apply_rgb_gain_mask(arr_t, warm_hl, hl2)
     lift_mul = 0.12 * s
     lift_add = 0.05 * s
-    arr_t = np.clip(arr_t * (1.0 + lift_mul * hl2[..., None]) + lift_add * hl2[..., None], 0.0, 1.0)
+    arr_t = apply_highlight_lift(arr_t, hl2, lift_mul=lift_mul, lift_add=lift_add)
     tint_sh = np.array([210.0/255.0, 180.0/255.0, 160.0/255.0], dtype=np.float32)
     a_sh = 0.18 * s
-    arr_t[:, :, 0] = arr_t[:, :, 0] * (1.0 - a_sh * sh) + tint_sh[0] * (a_sh * sh)
-    arr_t[:, :, 1] = arr_t[:, :, 1] * (1.0 - a_sh * sh) + tint_sh[1] * (a_sh * sh)
-    arr_t[:, :, 2] = arr_t[:, :, 2] * (1.0 - a_sh * sh) + tint_sh[2] * (a_sh * sh)
-    r2 = arr_t[:, :, 0]
-    g2 = arr_t[:, :, 1]
-    b2 = arr_t[:, :, 2]
-    red_rel = np.clip(r2 - 0.5 * (g2 + b2), 0.0, 1.0)
-    yellow_rel = np.clip(np.minimum(r2, g2) - b2, 0.0, 1.0)
+    arr_t = apply_tint_mask(arr_t, tint_sh, (a_sh * sh))
+    red_rel = red_dominance_mask(arr_t, scale=1.0)
+    yellow_rel = yellow_dominance_mask(arr_t)
     boost_red = 0.25 * s * red_rel
     boost_yel = 0.22 * s * yellow_rel
-    arr_t[:, :, 0] = np.clip(arr_t[:, :, 0] * (1.0 + boost_red + 0.5 * boost_yel), 0.0, 1.0)
-    arr_t[:, :, 1] = np.clip(arr_t[:, :, 1] * (1.0 + boost_yel * 0.8), 0.0, 1.0)
+    arr_t = apply_channel_mul(arr_t, 0, (1.0 + boost_red + 0.5 * boost_yel))
+    arr_t = apply_channel_mul(arr_t, 1, (1.0 + boost_yel * 0.8))
     arr_t = _apply_film_grain(arr_t, s, mid=0.5, sigma_base=0.02, sigma_slope=0.03, cw=[1.02, 1.00, 0.98])
-    out = (arr_t * 255.0 + 0.5).astype('uint8')
-    return Image.fromarray(out, mode='RGB')
+    return float_rgb_to_image(arr_t)
 
 ## LUT-related functionality removed for this release
 

@@ -8,6 +8,7 @@ from PIL.ExifTags import TAGS
 # Import shared sizing, style and utils from core module to avoid duplication
 from wxcloudrun import add_bd as core
 from wxcloudrun.color_extract import extract_main_colors
+from wxcloudrun.assets_data import film_logs, logo_dict
 
 __all__ = [
     'process_one_image',
@@ -15,49 +16,17 @@ __all__ = [
     'AVAILABLE_FORMAT_KEYS',
 ]
 
-film_logs={
-  
-  'FujiFilm C200 135':  'films/FujiC200-new-135.jpg',
-  'FujiFilm C400 135':  'films/FujiC400-new-135.jpg',
-  'FujiFilm Pro Provia 100f 120':  'films/Fujifilm_RDP_III_120.jpg',
-  'FujiFilm Pro Provia 100f 135':  'films/Fujifilm_RDP_III_135.jpg',
-  'FujiFilm Pro Velvia 100 120':  'films/Velvia100-120.jpg',
-  'FujiFilm Pro Velvia 100 135':  'films/Velvia100-135.jpg',
-  'FujiFilm Pro Velvia 50 120':  'films/Velvia_50-120.jpg',
-  'FujiFilm Pro Velvia 50 135':  'films/Velvia_50-135.jpg',
-  'FujiFilm Acros 100 II 135':  'films/Acros100ii-135_.jpg',
+def _resolve_film_logo_path(film_file: str) -> str:
+    if not film_file:
+        return ''
+    if os.path.exists(film_file):
+        return film_file
+    candidate = film_logs.get(film_file, '')
+    if candidate and os.path.exists(candidate):
+        return candidate
+    return film_file
 
-  'Kodak Ektachrome 100 Daylight 120':  'films/kodak-film-ektachrome-100-120.webp',
-  'Kodak Ektachrome 100 Daylight 135':  'films/kodak-film-ektachrome-100-135.jpg',
-
-  'Kodak Gold 200 Daylight 120':  'films/kodak-gold-200-120.jpg',
-  'Kodak Gold 200 Daylight 135':  'films/kodak-gold200-135.webp',
-  'Kodak ColorPlus 200 135':       'films/kodak-cp200-135.jpg',
-  'Kodak Ultramax 400 135':        'films/kodak-ultramax400-135.jpg',
-
-  'Kodak T-Max 400 135':  'films/kodak-tmax-400-135.jpg',
-  'Kodak T-Max 400 120':  'films/kodak-tmax400-120.jpg',
-  'Kodak Tri-X 400 135':  'films/kodak-tri-x-400-135.jpg',
-
-  
-  'Kodak Ektachrome 100D 7294':       'films/Ektachrome-100D-7294-190529-HR-1.jpg',
-  'Kodak Vision3 50D 5203':           'films/VISION3-50D-Cans_round_022018_white-5.jpg',
-  'Kodak Vision3 200T 5213':          'films/VISION-200T-filmcans_022018_white-4.jpg',
-  'Kodak Vision3 250D 5207':          'films/VISION3-250D_5207_LARGE-filmcans_-35mm-1000ft-COLORS-3300x3300-1.jpg',
-  'Kodak Vision3 500T 5219':     'films/VISION3_5219_7219_filmcans_022018_white-2.jpg',
-  'Kodak Eastman Double-X 5222': 'films/EASTMAN-DOUBLE-X-5222-7222_180801-3-1.jpg',
-
-  'Lucky Color 200 120':  'films/lucky C200 120.jpg',
-  'Lucky Color 200 135':  'films/lucky C200 135.jpg',
-  'Lucky SHD 100 120':    'films/lucky SHD100 120.jpg',
-  'Lucky SHD 100 135':    'films/lucky SHD100 135.jpg',
-  'Lucky SHD 400 120':    'films/lucky SHD400 1230.jpg',
-  'Lucky SHD 400 135':    'films/lucky SHD400 135.jpg',
-
-}
-
-
-def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_name: str = '', **kwargs) -> Image.Image:
+def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_file: str = '', **kwargs) -> Image.Image:
     suppli_line = suppli_info
     # 自动读取 EXIF 信息
     if text == '':
@@ -74,7 +43,7 @@ def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str
 
         if camera_mk and camera_m:
             text = camera_mk + ' ' + camera_m + '\n\n'
-            logo_file = core.logo_dict[camera_mk]
+            logo_file = logo_dict[camera_mk]
             try:
                 exif_dict = piexif.load(img.info['exif'])
                 focal_length = exif_dict['Exif'][piexif.ExifIFD.FocalLength]
@@ -110,9 +79,8 @@ def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str
     background.paste(img, (core.exterior, core.exterior))
 
     # add logo
-    if film_name!='':
-      # 获取film logo路径
-      film_logo_path = film_logs.get(film_name, '')
+    film_logo_path = _resolve_film_logo_path(film_file)
+    if film_logo_path != '':
       if film_logo_path and os.path.exists(film_logo_path):
         # 打开两个logo
         film_logo_img = Image.open(film_logo_path).convert('RGB')
@@ -201,7 +169,7 @@ def _format_basic1(img: Image.Image, text: str, logo_file: str, suppli_info: str
 
     return background
 
-def _format_basic2(img, text, logo_file, suppli_info='', *, square=False, film_name:str = '', **kwargs):
+def _format_basic2(img, text, logo_file, suppli_info='', *, square=False, film_file: str = '', **kwargs):
     """
     Format with all elements centered vertically:
     - Logo (top)
@@ -246,9 +214,9 @@ def _format_basic2(img, text, logo_file, suppli_info='', *, square=False, film_n
     draw = ImageDraw.Draw(background)
     
     # Add logo (centered)
-    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')):
+    film_logo_path = _resolve_film_logo_path(film_file)
+    if film_logo_path != '' and os.path.exists(film_logo_path):
         # 双logo模式：film logo + camera logo
-        film_logo_path = film_logs.get(film_name, '')
         film_logo_img = Image.open(film_logo_path).convert('RGB')
         camera_logo_img = Image.open(logo_file).convert('RGB')
         
@@ -330,7 +298,7 @@ def _format_basic2(img, text, logo_file, suppli_info='', *, square=False, film_n
 
 
 
-def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_name:str = '', **kwargs) -> Image.Image:
+def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str = '', *, square: bool = False, film_file: str = '', **kwargs) -> Image.Image:
     """
     Layout:
     +----------------+ +------------+
@@ -398,12 +366,13 @@ def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str
     content_w_for_logo = max(1, left_panel_width - 2 * inner_pad)
     logo_block_h = 0
     # 检查是否需要双logo模式
-    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')) and os.path.exists(logo_file):
+    film_logo_path = _resolve_film_logo_path(film_file)
+    if film_logo_path != '' and os.path.exists(film_logo_path) and os.path.exists(logo_file):
         try:
             # 双logo模式：宽度比例改为0.5，垂直堆叠
             logo_w_target = max(1, int(content_w_for_logo * 0.5))
             _camera_probe = Image.open(logo_file)
-            _film_probe = Image.open(film_logs.get(film_name, ''))
+            _film_probe = Image.open(film_logo_path)
             # 计算两个logo各自的高度（基于相同的目标宽度）
             _camera_ratio = _camera_probe.height / max(1, _camera_probe.width)
             _film_ratio = _film_probe.height / max(1, _film_probe.width)
@@ -466,11 +435,10 @@ def _format_basic3(img: Image.Image, text: str, logo_file: str, suppli_info: str
     current_y = core.exterior + max(0, (total_height - left_block_h) // 2)
 
     # Add logo
-    if film_name != '' and film_logs.get(film_name, '') and os.path.exists(film_logs.get(film_name, '')) and os.path.exists(logo_file) and logo_block_h > 0:
+    if film_logo_path != '' and os.path.exists(film_logo_path) and os.path.exists(logo_file) and logo_block_h > 0:
         try:
             # 双logo模式：垂直排列，camera在上，film在下
             logo_w_target_dual = max(1, int(content_w_for_logo * 0.5))
-            film_logo_path = film_logs.get(film_name, '')
             film_logo_img = Image.open(film_logo_path).convert('RGBA')
             camera_logo_img = Image.open(logo_file).convert('RGBA')
             
@@ -573,7 +541,7 @@ AVAILABLE_FORMAT_KEYS = set(FORMAT_HANDLERS.keys())
 
 def process_one_image(img_input: Image.Image, text: str, logo_file: str, *args,
                       format: str = 'basic2', suppli_info: str = '', max_length: int = 2400,
-                      add_black_border: bool = True, square: bool = False, film_name: str = '') -> Image.Image:
+                      add_black_border: bool = True, square: bool = False, film_file: str = '', film_name: str = '') -> Image.Image:
     """Dispatch to a registered format handler after applying layout sizing via core.update_tgt_size.
     Backward compatibility: extra positional arg treated as suppli_info unless it's a known format key.
     """
@@ -591,4 +559,5 @@ def process_one_image(img_input: Image.Image, text: str, logo_file: str, *args,
     handler = FORMAT_HANDLERS.get(format)
     if handler is None:
         raise ValueError('format not recognized')
-    return handler(img, text, logo_file, suppli_info=suppli_info, square=square, film_name=film_name)
+    film_logo_file = film_file or film_name
+    return handler(img, text, logo_file, suppli_info=suppli_info, square=square, film_file=film_logo_file)

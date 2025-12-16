@@ -115,6 +115,7 @@ def main():
 
     logo_path = pick_logo()
     text_default = 'Camera Type: Panasonic DC-S5MII\n\nLens information: Leica Summilux 50mm f/1.4'
+    film_path = os.path.join('films', 'Fujifilm_RDP_III_120.jpg')
 
     for idx, fmt in enumerate(sorted(FORMAT_KEYS)):
         try:
@@ -130,7 +131,7 @@ def main():
                     max_length=2400,
                     add_black_border=True,
                     square=False,
-                    film_name='FujiFilm Pro Provia 100f 120'
+                    film_file=film_path,
                 )
                 thumb = make_width_thumbnail(processed, 600)
                 out_path = os.path.join(out_dir, f"format_{fmt}.jpg")
