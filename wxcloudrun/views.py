@@ -489,6 +489,60 @@ def image_upload():
         except Exception as e:
           return make_err_response(f'图片保存失败: {e}')
 
+@app.route('/api/filter_preview', methods=['POST'])
+def filter_preview():
+  # Only accept multipart form upload: image + filter params
+  files = request.files
+  if 'image' not in files or not files['image'] or files['image'].filename == '':
+      return make_err_response('没有收到图片')
+
+  img_file = files['image']
+
+  # Parse filter params
+  filter_key = (request.form.get('filter') or request.form.get('filter_key') or 'none').strip().lower()
+  try:
+      filter_strength = float(request.form.get('filter_strength', 0.5))
+  except Exception:
+      filter_strength = 0.5
+  filter_strength = max(0.0, min(1.0, filter_strength))
+
+  try:
+      img_file.stream.seek(0)
+      img = Image.open(img_file.stream).convert('RGB')
+  except Exception as e:
+      logging.info(f'filter_preview: 图片加载失败: {e}')
+      return make_err_response(f'图片加载失败: {e}')
+  
+  try:
+      target_w = 500
+      w, h = img.size
+      if w <= 0 or h <= 0:
+          return make_err_response('图片尺寸异常')
+      if w != target_w:
+          scale = float(target_w) / float(w)
+          target_h = max(1, int(round(h * scale)))
+          img = img.resize((target_w, target_h), Image.LANCZOS)
+  except Exception as e:
+      logging.info(f'filter_preview: resize failed: {e}')
+      return make_err_response(f'resize失败: {e}')
+
+  try:
+      img = apply_filter(img, filter_key, strength=filter_strength)
+  except Exception as e:
+      logging.info(f'filter_preview: apply_filter failed (filter={filter_key}, strength={filter_strength}): {e}')
+      return make_err_response(f'滤镜处理失败: {e}')
+
+  
+  try:
+      out = io.BytesIO()
+      img.save(out, format='JPEG', quality=50, optimize=True, progressive=True, subsampling=0)
+      out.seek(0)
+      return send_file(out, mimetype='image/jpeg')
+
+  except Exception as e:
+      logging.info(f'filter_preview: save failed: {e}')
+      return make_err_response(f'save失败: {e}')
+
 @app.route('/api/image_download', methods=['POST'])
 def image_download():
     """

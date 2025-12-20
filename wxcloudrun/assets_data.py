@@ -110,10 +110,12 @@ all_logo_dict = {
     'panasonic': {'name': 'Panasonic', 'short': 'Pana', 'thumb': 'img_thumbnail/logos-thumbnails/LumixS.jpg', 'value': 'logos/LumixS.jpg'},
     'panasonic_normal': {'name': 'Panasonic M43', 'short': 'PanaM43', 'thumb': 'img_thumbnail/logos-thumbnails/Panasonic-Lumix-Logo.jpg', 'value': 'logos/Panasonic-Lumix-Logo.jpg'},
     'canon': {'name': 'Canon', 'short': 'Canon', 'thumb': 'img_thumbnail/logos-thumbnails/canon-r-logo.jpg', 'value': 'logos/canon-r-logo.jpg'},
+    'canon_old': {'name': 'Canon Old', 'short': 'Canon', 'thumb': 'img_thumbnail/logos-thumbnails/Canon-Oldl.jpg', 'value': 'logos/Canon-Oldl.jpg'},
     'canon_eos': {'name': 'Canon EOS', 'short': 'CanonEOS', 'thumb': 'img_thumbnail/logos-thumbnails/canon.jpg', 'value': 'logos/canon.jpg'},
     'fujifilm': {'name': 'FUJIFILM', 'short': 'Fujifilm', 'thumb': 'img_thumbnail/logos-thumbnails/fujifilm.jpg', 'value': 'logos/fujifilm.jpg'},
     'bronica': {'name': 'Bronica', 'short': 'Bronica', 'thumb': 'img_thumbnail/logos-thumbnails/bronica.jpg', 'value': 'logos/bronica.jpg'},
     'pentax': {'name': 'Pentax', 'short': 'Pentax', 'thumb': 'img_thumbnail/logos-thumbnails/pentax.jpg', 'value': 'logos/pentax.jpg'},
+    'pentax_new': {'name': 'Pentax New', 'short': 'Pentax', 'thumb': 'img_thumbnail/logos-thumbnails/pentax-new.jpg', 'value': 'logos/pentax-new.jpg'},
     'ricoh': {'name': 'Ricoh', 'short': 'Ricoh', 'thumb': 'img_thumbnail/logos-thumbnails/ricoh.jpg', 'value': 'logos/ricoh.jpg'},
     'yashica124g': {'name': 'Yashica', 'short': 'Yashica', 'thumb': 'img_thumbnail/logos-thumbnails/yashica.jpg', 'value': 'logos/yashica.jpg'},
     'leica': {'name': 'Leica', 'short': 'Leica', 'thumb': 'img_thumbnail/logos-thumbnails/Leicalogo.jpg', 'value': 'logos/Leicalogo.jpg'},
@@ -124,6 +126,11 @@ all_logo_dict = {
     'mamiya_2': {'name': 'Mamiya New', 'short': 'Mamiya2', 'thumb': 'img_thumbnail/logos-thumbnails/mamiya2.jpg', 'value': 'logos/mamiya2.jpg'},
     'rollei_new': {'name': 'Rollei New', 'short': 'RolleiN', 'thumb': 'img_thumbnail/logos-thumbnails/rollei-new.jpg', 'value': 'logos/rollei-new.jpg'},
     'rollei': {'name': 'Rollei', 'short': 'Rollei', 'thumb': 'img_thumbnail/logos-thumbnails/Rollei.jpg', 'value': 'logos/Rollei.jpg'},
+    'contax_new': {'name': 'Contax', 'short': 'Contax', 'thumb': 'img_thumbnail/logos-thumbnails/contax-new.jpg', 'value': 'logos/contax-new.jpg'},
+    'zeiss_new': {'name': 'ZEISS New', 'short': 'ZEISS', 'thumb': 'img_thumbnail/logos-thumbnails/zeiss-new.jpg', 'value': 'logos/zeiss-new.jpg'},
+    'zeiss_old': {'name': 'ZEISS Old', 'short': 'ZEISS', 'thumb': 'img_thumbnail/logos-thumbnails/zeiss-old.jpg', 'value': 'logos/zeiss-old.jpg'},
+    'voigtlander_art': {'name': 'Voigtländer', 'short': 'Voigt', 'thumb': 'img_thumbnail/logos-thumbnails/VOIGTLANDER-art.jpg', 'value': 'logos/VOIGTLANDER-art.jpg'},
+    'infinity_nikki': {'name': 'Infinity Nikki', 'short': 'Nikki', 'thumb': 'img_thumbnail/logos-thumbnails/infinity-nikki.jpg', 'value': 'logos/infinity-nikki.jpg'},
 }
 
 
@@ -169,8 +176,7 @@ filter_thumbnail_dict = {
     'film_kodak_5219': {'name': '柯达5219', 'short': '5219', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_kodak_5219.jpg', 'value': 'film_kodak_5219'},
     'film_kodak_e100': {'name': '柯达E100', 'short': 'E100', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_kodak_e100.jpg', 'value': 'film_kodak_e100'},
     'bw': {'name': '黑白', 'short': '黑白', 'thumb': 'img_thumbnail/filters-thumbnail/filter_black_white.jpg', 'value': 'black_white'},
-    'vivid': {'name': '鲜艳', 'short': '鲜艳', 'thumb': 'img_thumbnail/filters-thumbnail/filter_vivid.jpg', 'value': 'vivid'},
-    'retro': {'name': '复古', 'short': '复古', 'thumb': 'img_thumbnail/filters-thumbnail/filter_retro.jpg', 'value': 'retro'},
+    
     # 'film': {'name': '胶片', 'short': '胶片', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film.jpg', 'value': 'film'},
     'lut01': {'name': 'LUT 01', 'short': 'L01', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut01.jpg', 'value': 'lut01'},
     'lut02': {'name': 'LUT 02', 'short': 'L02', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut02.jpg', 'value': 'lut02'},
@@ -187,5 +193,7 @@ filter_thumbnail_dict = {
     'lut13': {'name': 'LUT 13', 'short': 'L13', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut13.jpg', 'value': 'lut13'},
     'lut14': {'name': 'LUT 14', 'short': 'L14', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut14.jpg', 'value': 'lut14'},
     'lut15': {'name': 'LUT 15', 'short': 'L15', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut15.jpg', 'value': 'lut15'},
+    'vivid': {'name': '鲜艳', 'short': '鲜艳', 'thumb': 'img_thumbnail/filters-thumbnail/filter_vivid.jpg', 'value': 'vivid'},
+    'retro': {'name': '复古', 'short': '复古', 'thumb': 'img_thumbnail/filters-thumbnail/filter_retro.jpg', 'value': 'retro'},
 }
 
