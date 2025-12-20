@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import render_template, request, send_file, url_for, after_this_request, send_from_directory
+from werkzeug.routing import BuildError
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -85,16 +86,28 @@ def _find_thumbnail_filename(thumb_dir: str, original_filename: str) -> str:
     return ''
 
 
-@app.route('/logos-thumbnails/<path:filename>')
-def logos_thumbnails(filename):
-    base = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
-    return send_from_directory(base, filename)
+def _thumb_url_from_rel(rel_path: str, endpoint: str) -> str:
+    rel_path = (rel_path or '').lstrip('/').replace('\\', '/')
+    if not rel_path:
+        return ''
+
+    filename = os.path.basename(rel_path)
+    try:
+        return url_for(endpoint, filename=filename, _external=True)
+    except BuildError:
+        return url_for('static', filename=rel_path, _external=True)
 
 
-@app.route('/films-thumbnails/<path:filename>')
-def films_thumbnails(filename):
-    base = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
-    return send_from_directory(base, filename)
+# @app.route('/logos-thumbnails/<path:filename>')
+# def logos_thumbnails(filename):
+#     base = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
+#     return send_from_directory(base, filename)
+
+
+# @app.route('/films-thumbnails/<path:filename>')
+# def films_thumbnails(filename):
+#     base = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
+#     return send_from_directory(base, filename)
 
 
 @app.route('/api/logo_film_list', methods=['GET'])
@@ -102,61 +115,114 @@ def logo_film_list():
     logos_thumb_dir = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
     films_thumb_dir = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
 
-    from wxcloudrun.assets_data import film_logs as _film_logs, text_dict as _text_dict, logo_dict as _logo_dict
+    from wxcloudrun.assets_data import film_logs as _film_logs, all_logo_dict as _all_logo_dict, all_film_logo_dict as _all_film_logo_dict, filter_thumbnail_dict as _filter_thumbnail_dict
 
-    # logos：从 text_dict 提取 logo 路径，但按 logo 文件去重后输出（更接近“所有logo文件列表”）
-    logos_by_value = {}
-    for k in sorted(_text_dict.keys()):
-        item = _text_dict.get(k)
-        if not isinstance(item, (list, tuple)) or len(item) < 2:
+    # logos：以 all_logo_dict 为准，确保返回“全部logo列表”
+    logos = []
+    for logo_key in _all_logo_dict:
+        meta = _all_logo_dict.get(logo_key) or {}
+        if not isinstance(meta, dict):
             continue
-        logo_path = item[1]
-        if not isinstance(logo_path, str) or not logo_path:
-            continue
-        value = logo_path.replace('\\', '/')
-        if value in logos_by_value:
+        value = (meta.get('value') or '').replace('\\', '/')
+        if not value:
             continue
 
-        logo_fn = os.path.basename(value)
-        stem = os.path.splitext(logo_fn)[0]
-        name = _prettify_name(stem)
+        name = meta.get('name') or ''
+        short = meta.get('short') or _pick_short(name)
+
         thumb_url = ''
-        thumb_fn = _find_thumbnail_filename(logos_thumb_dir, logo_fn)
-        if thumb_fn:
-            thumb_url = url_for('static', filename=f"img_thumbnail/logos-thumbnails/{thumb_fn}", _external=True)
+        thumb_rel = meta.get('thumb')
+        if isinstance(thumb_rel, str) and thumb_rel.strip():
+            thumb_url = _thumb_url_from_rel(thumb_rel, 'logos_thumbnails')
+        else:
+            logo_fn = os.path.basename(value)
+            thumb_fn = _find_thumbnail_filename(logos_thumb_dir, logo_fn)
+            if thumb_fn:
+                thumb_url = _thumb_url_from_rel(f"img_thumbnail/logos-thumbnails/{thumb_fn}", 'logos_thumbnails')
 
-        logos_by_value[value] = {
-            'key': _slugify(stem),
+        logos.append({
+            'key': logo_key,
             'name': name,
-            'short': _pick_short(name),
+            'short': short,
             'thumb': thumb_url,
+            'thumbnail_url': thumb_url,
             'value': value,
-        }
+        })
 
-    logos = list(logos_by_value.values())
-
-    # filmlogos：以 film_logs 的 key/value 为准
+    # filmlogos：以 all_film_logo_dict 为准（short 字段来自前端表）
     filmlogos = []
-    for film_name in sorted(_film_logs.keys()):
-        film_rel = (_film_logs.get(film_name) or '').replace('\\', '/')
+    if isinstance(_all_film_logo_dict, dict) and 'none' in _all_film_logo_dict:
+        meta = _all_film_logo_dict.get('none') or {}
+        filmlogos.append({
+            'key': 'none',
+            'name': meta.get('name') or 'none',
+            'short': meta.get('short') or 'no logo',
+            'thumb': '',
+            'thumbnail_url': '',
+            'value': '',
+        })
+
+    for film_key in _all_film_logo_dict:
+        if film_key == 'none':
+            continue
+        meta = _all_film_logo_dict.get(film_key) or {}
+        if not isinstance(meta, dict):
+            continue
+
+        film_rel = (meta.get('value') or '').replace('\\', '/')
         if not film_rel:
             continue
+        film_name = meta.get('name') or ''
+        film_short = meta.get('short') or _pick_short(film_name)
+
         thumb_url = ''
-        film_fn = os.path.basename(film_rel)
-        thumb_fn = _find_thumbnail_filename(films_thumb_dir, film_fn)
-        if thumb_fn:
-            thumb_url = url_for('static', filename=f"img_thumbnail/films-thumbnails/{thumb_fn}", _external=True)
+        thumb_rel = meta.get('thumb')
+        if isinstance(thumb_rel, str) and thumb_rel.strip():
+            thumb_url = _thumb_url_from_rel(thumb_rel, 'films_thumbnails')
+        else:
+            film_fn = os.path.basename(film_rel)
+            thumb_fn = _find_thumbnail_filename(films_thumb_dir, film_fn)
+            if thumb_fn:
+                thumb_url = _thumb_url_from_rel(f"img_thumbnail/films-thumbnails/{thumb_fn}", 'films_thumbnails')
+
         filmlogos.append({
-            'key': _slugify(film_name),
+            'key': film_key,
             'name': film_name,
-            'short': _pick_short(film_name),
+            'short': film_short,
             'thumb': thumb_url,
+            'thumbnail_url': thumb_url,
             'value': film_rel,
         })
+
+    filters = []
+    if isinstance(_filter_thumbnail_dict, dict):
+        for k in _filter_thumbnail_dict:
+            meta = _filter_thumbnail_dict.get(k) or {}
+            if isinstance(meta, dict):
+                rel = (meta.get('thumb') or '').lstrip('/').replace('\\', '/')
+                name = meta.get('name') or ''
+                short = meta.get('short') or ''
+                value = meta.get('value') or ''
+            else:
+                rel = str(meta).lstrip('/').replace('\\', '/')
+                name = ''
+                short = ''
+                value = k
+
+            thumb_url = url_for('static', filename=rel, _external=True) if rel else ''
+            filters.append({
+                'key': k,
+                'name': name,
+                'short': short,
+                'thumb': thumb_url,
+                'thumbnail_url': thumb_url,
+                'value': value,
+            })
 
     payload = {
         'logos': logos,
         'filmlogos': filmlogos,
+        'filters': filters,
         'version': datetime.now().strftime('%Y-%m-%d'),
     }
     return make_succ_response(payload)

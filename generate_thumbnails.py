@@ -3,6 +3,7 @@ from PIL import Image
 
 from wxcloudrun.add_bd import apply_filter, AVAILABLE_FILTER_KEYS as FILTER_KEYS
 from wxcloudrun.add_bd import process_one_image, AVAILABLE_FORMAT_KEYS as FORMAT_KEYS
+from wxcloudrun.effects.filter_utils import apply_pylut
 
 
 def ensure_dir(path: str):
@@ -70,17 +71,24 @@ def generate_logo_thumbnails(logos_dir='logos', out_dir='img_thumbnail'):
 
 def main():
     # Generate logo thumbnails first
+    out_dir = './wxcloudrun/static/img_thumbnail'
+
     print("\n=== Generating logo thumbnails ===")
-    out_dir = 'img_thumbnail'
     generate_logo_thumbnails('logos', out_dir)
     generate_logo_thumbnails("films", out_dir)
     
     print("\n=== Generating filter and format thumbnails ===")
-    image_path = os.path.join('.', 'P_1016535.JPG')
+    image_path = os.path.join('.', 'P_1016535.jpg')
     ensure_dir(out_dir)
 
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Input image not found: {image_path}")
+
+    filters_thumb_dir = os.path.join(out_dir, 'filters-thumbnail')
+    ensure_dir(filters_thumb_dir)
+
+    pylut_filters_thumb_dir = os.path.join(out_dir, 'pylutfilters-thumbnail')
+    ensure_dir(pylut_filters_thumb_dir)
 
     # Deterministic order for output files
     filter_keys = sorted(FILTER_KEYS)
@@ -90,11 +98,18 @@ def main():
             with Image.open(image_path) as img:
                 img = img.convert('RGB')
                 # strength default = 0.5 (baseline)
-                thumb = make_width_thumbnail(img,200)
+                thumb = make_width_thumbnail(img, 200)
                 processed = apply_filter(thumb, key, strength=0.5)
-                out_path = os.path.join(out_dir, f"filter_{key}.jpg")
+                out_path = os.path.join(filters_thumb_dir, f"filter_{key}.jpg")
                 processed.save(out_path, format='JPEG', quality=92)
                 print(f"Saved: {out_path}")
+
+                # if key.startswith('lut') and len(key) == 5 and key[3:].isdigit():
+                #     cube_name = f"Titanium_Cinematic_{key[3:]}.cube"
+                #     processed2 = apply_pylut(thumb, 0.5, f"cubes/{cube_name}")
+                #     out_path2 = os.path.join(pylut_filters_thumb_dir, f"filter_{key}.jpg")
+                #     processed2.save(out_path2, format='JPEG', quality=92)
+                #     print(f"Saved: {out_path2}")
         except Exception as e:
             print(f"Failed on filter '{key}': {e}")
 

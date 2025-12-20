@@ -1,3 +1,6 @@
+
+# local usage
+
 film_logs = {
     'FujiFilm C200 135': 'films/FujiC200-new-135.jpg',
     'FujiFilm C400 135': 'films/FujiC400-new-135.jpg',
@@ -94,3 +97,95 @@ logo_dict = {
     'leica_VM40': 'logos/Leicalogo.jpg',
     'leica_M35': 'logos/Leicalogo.jpg',
 }
+
+# remote usage
+
+all_logo_dict = {
+    'hasselblad': {'name': 'Hasselblad', 'short': 'Hassel', 'thumb': 'img_thumbnail/logos-thumbnails/hassel.jpg', 'value': 'logos/hassel.jpg'},
+    'olympus_film': {'name': 'Olympus Early', 'short': 'Olympus', 'thumb': 'img_thumbnail/logos-thumbnails/Olympus.jpg', 'value': 'logos/Olympus.jpg'},
+    'olympus_digital': {'name': 'OLYMPUS-digital', 'short': 'Olympus', 'thumb': 'img_thumbnail/logos-thumbnails/Olympus-new.jpg', 'value': 'logos/Olympus-new.png'},
+    'mamiya_six': {'name': 'Mamiya Early', 'short': 'Mamiya', 'thumb': 'img_thumbnail/logos-thumbnails/mamiya.jpg', 'value': 'logos/mamiya.jpg'},
+    'minolta': {'name': 'Minolta', 'short': 'Minolta', 'thumb': 'img_thumbnail/logos-thumbnails/Minolta.jpg', 'value': 'logos/Minolta.jpg'},
+    'sony': {'name': 'SONY', 'short': 'Sony', 'thumb': 'img_thumbnail/logos-thumbnails/Sony-Alpha-Logo.jpg', 'value': 'logos/Sony-Alpha-Logo.png'},
+    'panasonic': {'name': 'Panasonic', 'short': 'Pana', 'thumb': 'img_thumbnail/logos-thumbnails/LumixS.jpg', 'value': 'logos/LumixS.jpg'},
+    'panasonic_normal': {'name': 'Panasonic M43', 'short': 'PanaM43', 'thumb': 'img_thumbnail/logos-thumbnails/Panasonic-Lumix-Logo.jpg', 'value': 'logos/Panasonic-Lumix-Logo.jpg'},
+    'canon': {'name': 'Canon', 'short': 'Canon', 'thumb': 'img_thumbnail/logos-thumbnails/canon-r-logo.jpg', 'value': 'logos/canon-r-logo.jpg'},
+    'canon_eos': {'name': 'Canon EOS', 'short': 'CanonEOS', 'thumb': 'img_thumbnail/logos-thumbnails/canon.jpg', 'value': 'logos/canon.jpg'},
+    'fujifilm': {'name': 'FUJIFILM', 'short': 'Fujifilm', 'thumb': 'img_thumbnail/logos-thumbnails/fujifilm.jpg', 'value': 'logos/fujifilm.jpg'},
+    'bronica': {'name': 'Bronica', 'short': 'Bronica', 'thumb': 'img_thumbnail/logos-thumbnails/bronica.jpg', 'value': 'logos/bronica.jpg'},
+    'pentax': {'name': 'Pentax', 'short': 'Pentax', 'thumb': 'img_thumbnail/logos-thumbnails/pentax.jpg', 'value': 'logos/pentax.jpg'},
+    'ricoh': {'name': 'Ricoh', 'short': 'Ricoh', 'thumb': 'img_thumbnail/logos-thumbnails/ricoh.jpg', 'value': 'logos/ricoh.jpg'},
+    'yashica124g': {'name': 'Yashica', 'short': 'Yashica', 'thumb': 'img_thumbnail/logos-thumbnails/yashica.jpg', 'value': 'logos/yashica.jpg'},
+    'leica': {'name': 'Leica', 'short': 'Leica', 'thumb': 'img_thumbnail/logos-thumbnails/Leicalogo.jpg', 'value': 'logos/Leicalogo.jpg'},
+    'nikon': {'name': 'Nikon', 'short': 'Nikon', 'thumb': 'img_thumbnail/logos-thumbnails/Nikon.jpg', 'value': 'logos/Nikon.jpg'},
+    'nikon_z': {'name': 'Nikon Z', 'short': 'NikonZ', 'thumb': 'img_thumbnail/logos-thumbnails/NikonZ.jpg', 'value': 'logos/NikonZ.jpg'},
+    'nikkon_1930s': {'name': 'Nikkon 1930s', 'short': 'Nikon30s', 'thumb': 'img_thumbnail/logos-thumbnails/nikkon_1930s.jpg', 'value': 'logos/nikkon_1930s.jpg'},
+    'nikkon_1949': {'name': 'Nikkon 1949', 'short': 'Nikon49', 'thumb': 'img_thumbnail/logos-thumbnails/nikkon_1949.jpg', 'value': 'logos/nikkon_1949.jpg'},
+    'mamiya_2': {'name': 'Mamiya New', 'short': 'Mamiya2', 'thumb': 'img_thumbnail/logos-thumbnails/mamiya2.jpg', 'value': 'logos/mamiya2.jpg'},
+    'rollei_new': {'name': 'Rollei New', 'short': 'RolleiN', 'thumb': 'img_thumbnail/logos-thumbnails/rollei-new.jpg', 'value': 'logos/rollei-new.jpg'},
+    'rollei': {'name': 'Rollei', 'short': 'Rollei', 'thumb': 'img_thumbnail/logos-thumbnails/Rollei.jpg', 'value': 'logos/Rollei.jpg'},
+}
+
+
+all_film_logo_dict = {
+    'none': {'name': 'none', 'short': 'no logo', 'thumb': '', 'value': ''},
+    'fuji_c200_135': {'name': 'FujiFilm C200 135', 'short': 'C200', 'thumb': 'img_thumbnail/films-thumbnails/FujiC200-new-135.jpg', 'value': 'films/FujiC200-new-135.jpg'},
+    'fuji_c400_135': {'name': 'FujiFilm C400 135', 'short': 'C400', 'thumb': 'img_thumbnail/films-thumbnails/FujiC400-new-135.jpg', 'value': 'films/FujiC400-new-135.jpg'},
+    'provia100f_120': {'name': 'FujiFilm Pro Provia 100f 120', 'short': 'Provia100F', 'thumb': 'img_thumbnail/films-thumbnails/Fujifilm_RDP_III_120.jpg', 'value': 'films/Fujifilm_RDP_III_120.jpg'},
+    'provia100f_135': {'name': 'FujiFilm Pro Provia 100f 135', 'short': 'Provia100F', 'thumb': 'img_thumbnail/films-thumbnails/Fujifilm_RDP_III_135.jpg', 'value': 'films/Fujifilm_RDP_III_135.jpg'},
+    'velvia100_120': {'name': 'FujiFilm Pro Velvia 100 120', 'short': 'Velvia100', 'thumb': 'img_thumbnail/films-thumbnails/Velvia100-120.jpg', 'value': 'films/Velvia100-120.jpg'},
+    'velvia100_135': {'name': 'FujiFilm Pro Velvia 100 135', 'short': 'Velvia100', 'thumb': 'img_thumbnail/films-thumbnails/Velvia100-135.jpg', 'value': 'films/Velvia100-135.jpg'},
+    'velvia50_120': {'name': 'FujiFilm Pro Velvia 50 120', 'short': 'Velvia50', 'thumb': 'img_thumbnail/films-thumbnails/Velvia_50-120.jpg', 'value': 'films/Velvia_50-120.jpg'},
+    'velvia50_135': {'name': 'FujiFilm Pro Velvia 50 135', 'short': 'Velvia50', 'thumb': 'img_thumbnail/films-thumbnails/Velvia_50-135.jpg', 'value': 'films/Velvia_50-135.jpg'},
+    'acros100ii_135': {'name': 'FujiFilm Acros 100 II 135', 'short': 'Acros100', 'thumb': 'img_thumbnail/films-thumbnails/Acros100ii-135_.jpg', 'value': 'films/Acros100ii-135_.jpg'},
+    'ektachrome100_120': {'name': 'Kodak Ektachrome 100 Daylight 120', 'short': 'E100', 'thumb': 'img_thumbnail/films-thumbnails/kodak-film-ektachrome-100-120.jpg', 'value': 'films/kodak-film-ektachrome-100-120.webp'},
+    'ektachrome100_135': {'name': 'Kodak Ektachrome 100 Daylight 135', 'short': 'E100', 'thumb': 'img_thumbnail/films-thumbnails/kodak-film-ektachrome-100-135.jpg', 'value': 'films/kodak-film-ektachrome-100-135.jpg'},
+    'gold200_120': {'name': 'Kodak Gold 200 Daylight 120', 'short': 'Gold200', 'thumb': 'img_thumbnail/films-thumbnails/kodak-gold-200-120.jpg', 'value': 'films/kodak-gold-200-120.jpg'},
+    'gold200_135': {'name': 'Kodak Gold 200 Daylight 135', 'short': 'Gold200', 'thumb': 'img_thumbnail/films-thumbnails/kodak-gold200-135.jpg', 'value': 'films/kodak-gold200-135.webp'},
+    'cp200_135': {'name': 'Kodak ColorPlus 200 135', 'short': 'CP200', 'thumb': 'img_thumbnail/films-thumbnails/kodak-cp200-135.jpg', 'value': 'films/kodak-cp200-135.jpg'},
+    'ultramax400_135': {'name': 'Kodak Ultramax 400 135', 'short': 'UM400', 'thumb': 'img_thumbnail/films-thumbnails/kodak-ultramax400-135.jpg', 'value': 'films/kodak-ultramax400-135.jpg'},
+    'tmax400_135': {'name': 'Kodak T-Max 400 135', 'short': 'TMax400', 'thumb': 'img_thumbnail/films-thumbnails/kodak-tmax-400-135.jpg', 'value': 'films/kodak-tmax-400-135.jpg'},
+    'tmax400_120': {'name': 'Kodak T-Max 400 120', 'short': 'TMax400', 'thumb': 'img_thumbnail/films-thumbnails/kodak-tmax400-120.jpg', 'value': 'films/kodak-tmax400-120.jpg'},
+    'trix400_135': {'name': 'Kodak Tri-X 400 135', 'short': 'TriX400', 'thumb': 'img_thumbnail/films-thumbnails/kodak-tri-x-400-135.jpg', 'value': 'films/kodak-tri-x-400-135.jpg'},
+    'ektachrome100d_5294': {'name': 'Kodak Ektachrome 100D 5294', 'short': '5294', 'thumb': 'img_thumbnail/films-thumbnails/Ektachrome-100D-7294-190529-HR-1.jpg', 'value': 'films/Ektachrome-100D-7294-190529-HR-1.jpg'},
+    'vision3_50d_5203': {'name': 'Kodak Vision3 50D 5203', 'short': '5203', 'thumb': 'img_thumbnail/films-thumbnails/VISION3-50D-Cans_round_022018_white-5.jpg', 'value': 'films/VISION3-50D-Cans_round_022018_white-5.jpg'},
+    'vision3_200t_5213': {'name': 'Kodak Vision3 200T 5213', 'short': '5213', 'thumb': 'img_thumbnail/films-thumbnails/VISION-200T-filmcans_022018_white-4.jpg', 'value': 'films/VISION-200T-filmcans_022018_white-4.jpg'},
+    'vision3_250d_5207': {'name': 'Kodak Vision3 250D 5207', 'short': '5207', 'thumb': 'img_thumbnail/films-thumbnails/VISION3-250D_5207_LARGE-filmcans_-35mm-1000ft-COLORS-3300x3300-1.jpg', 'value': 'films/VISION3-250D_5207_LARGE-filmcans_-35mm-1000ft-COLORS-3300x3300-1.jpg'},
+    'vision3_500t_5219': {'name': 'Kodak Vision3 500T 5219', 'short': '5219', 'thumb': 'img_thumbnail/films-thumbnails/VISION3_5219_7219_filmcans_022018_white-2.jpg', 'value': 'films/VISION3_5219_7219_filmcans_022018_white-2.jpg'},
+    'doublex_5222': {'name': 'Kodak Eastman Double-X 5222', 'short': '5222', 'thumb': 'img_thumbnail/films-thumbnails/EASTMAN-DOUBLE-X-5222-7222_180801-3-1.jpg', 'value': 'films/EASTMAN-DOUBLE-X-5222-7222_180801-3-1.jpg'},
+    'lucky_c200_120': {'name': 'Lucky Color 200 120', 'short': 'LC200', 'thumb': 'img_thumbnail/films-thumbnails/lucky C200 120.jpg', 'value': 'films/lucky C200 120.jpg'},
+    'lucky_c200_135': {'name': 'Lucky Color 200 135', 'short': 'LC200', 'thumb': 'img_thumbnail/films-thumbnails/lucky C200 135.jpg', 'value': 'films/lucky C200 135.jpg'},
+    'lucky_shd100_120': {'name': 'Lucky SHD 100 120', 'short': 'SHD100', 'thumb': 'img_thumbnail/films-thumbnails/lucky SHD100 120.jpg', 'value': 'films/lucky SHD100 120.jpg'},
+    'lucky_shd100_135': {'name': 'Lucky SHD 100 135', 'short': 'SHD100', 'thumb': 'img_thumbnail/films-thumbnails/lucky SHD100 135.jpg', 'value': 'films/lucky SHD100 135.jpg'},
+    'lucky_shd400_120': {'name': 'Lucky SHD 400 120', 'short': 'SHD400', 'thumb': 'img_thumbnail/films-thumbnails/lucky SHD400 1230.jpg', 'value': 'films/lucky SHD400 1230.jpg'},
+    'lucky_shd400_135': {'name': 'Lucky SHD 400 135', 'short': 'SHD400', 'thumb': 'img_thumbnail/films-thumbnails/lucky SHD400 135.jpg', 'value': 'films/lucky SHD400 135.jpg'},
+}
+
+
+filter_thumbnail_dict = {
+    'none': {'name': '无滤镜', 'short': '无', 'thumb': 'img_thumbnail/filters-thumbnail/filter_none.jpg', 'value': 'none'},
+    'film_kodak_g200': {'name': '柯达G200', 'short': 'G200', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_kodak_g200.jpg', 'value': 'film_kodak_g200'},
+    'film_fuji_c100': {'name': '富士C100', 'short': 'C100', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_fuji_c100.jpg', 'value': 'film_fuji_c100'},
+    'film_kodak_5219': {'name': '柯达5219', 'short': '5219', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_kodak_5219.jpg', 'value': 'film_kodak_5219'},
+    'film_kodak_e100': {'name': '柯达E100', 'short': 'E100', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film_kodak_e100.jpg', 'value': 'film_kodak_e100'},
+    'bw': {'name': '黑白', 'short': '黑白', 'thumb': 'img_thumbnail/filters-thumbnail/filter_black_white.jpg', 'value': 'black_white'},
+    'vivid': {'name': '鲜艳', 'short': '鲜艳', 'thumb': 'img_thumbnail/filters-thumbnail/filter_vivid.jpg', 'value': 'vivid'},
+    'retro': {'name': '复古', 'short': '复古', 'thumb': 'img_thumbnail/filters-thumbnail/filter_retro.jpg', 'value': 'retro'},
+    # 'film': {'name': '胶片', 'short': '胶片', 'thumb': 'img_thumbnail/filters-thumbnail/filter_film.jpg', 'value': 'film'},
+    'lut01': {'name': 'LUT 01', 'short': 'L01', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut01.jpg', 'value': 'lut01'},
+    'lut02': {'name': 'LUT 02', 'short': 'L02', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut02.jpg', 'value': 'lut02'},
+    'lut03': {'name': 'LUT 03', 'short': 'L03', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut03.jpg', 'value': 'lut03'},
+    'lut04': {'name': 'LUT 04', 'short': 'L04', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut04.jpg', 'value': 'lut04'},
+    'lut05': {'name': 'LUT 05', 'short': 'L05', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut05.jpg', 'value': 'lut05'},
+    'lut06': {'name': 'LUT 06', 'short': 'L06', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut06.jpg', 'value': 'lut06'},
+    'lut07': {'name': 'LUT 07', 'short': 'L07', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut07.jpg', 'value': 'lut07'},
+    'lut08': {'name': 'LUT 08', 'short': 'L08', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut08.jpg', 'value': 'lut08'},
+    'lut09': {'name': 'LUT 09', 'short': 'L09', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut09.jpg', 'value': 'lut09'},
+    'lut10': {'name': 'LUT 10', 'short': 'L10', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut10.jpg', 'value': 'lut10'},
+    'lut11': {'name': 'LUT 11', 'short': 'L11', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut11.jpg', 'value': 'lut11'},
+    'lut12': {'name': 'LUT 12', 'short': 'L12', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut12.jpg', 'value': 'lut12'},
+    'lut13': {'name': 'LUT 13', 'short': 'L13', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut13.jpg', 'value': 'lut13'},
+    'lut14': {'name': 'LUT 14', 'short': 'L14', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut14.jpg', 'value': 'lut14'},
+    'lut15': {'name': 'LUT 15', 'short': 'L15', 'thumb': 'img_thumbnail/filters-thumbnail/filter_lut15.jpg', 'value': 'lut15'},
+}
+

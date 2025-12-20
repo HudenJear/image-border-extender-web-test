@@ -23,7 +23,7 @@ from .filter_utils import apply_channel_mul
 from .filter_utils import blue_dominance_mask
 from .filter_utils import green_dominance_mask
 from .filter_utils import red_dominance_mask
-from .filter_utils import yellow_dominance_mask
+from .filter_utils import yellow_dominance_mask, make_lut_filter,apply_lut
 
 __all__ = [
     'apply_filter',
@@ -160,7 +160,7 @@ def _filter_film_kodak_5219(img: Image.Image, strength: float) -> Image.Image:
     ], dtype=np.float32)
     arr_t = apply_matrix_3x3(arr_t, m)
     arr_t = np.clip(arr_t, 0.0, 1.0)
-    arr_t = _apply_film_grain(arr_t, s, mid=0.5, sigma_base=0.06, sigma_slope=0.08, cw=[0.95, 1.00, 1.18])
+    arr_t = _apply_film_grain(arr_t, s, mid=0.5, sigma_base=0.015, sigma_slope=0.012, cw=[0.96, 1.00, 1.08])
     return float_rgb_to_image(arr_t)
 
 
@@ -311,17 +311,27 @@ def _filter_film_kodak_g200(img: Image.Image, strength: float) -> Image.Image:
 
 ## LUT-related functionality removed for this release
 
+
 FILTER_HANDLERS = {
     'none': _filter_none,
     'black_white': _filter_black_white,
     'vivid': _filter_vivid,
     'retro': _filter_retro,
-    'film': _filter_film,
+    # 'film': _filter_film,
+    # 'lut01': _filter_lut01,
     'film_kodak_5219': _filter_film_kodak_5219,
     'film_fuji_c100': _filter_film_fuji_c100,
     'film_kodak_g200': _filter_film_kodak_g200,
     'film_kodak_e100': _filter_film_kodak_e100,
 }
+
+# Dynamically add LUT filters lut01..lut15 without duplicating code
+_lut_handlers = {
+    f'lut{i:02d}': make_lut_filter(f'Titanium_Cinematic_{i:02d}.cube')
+    for i in range(1, 16)
+}
+FILTER_HANDLERS.update(_lut_handlers)
+print(FILTER_HANDLERS)
 
 AVAILABLE_FILTER_KEYS = set(FILTER_HANDLERS.keys())
 
@@ -333,3 +343,9 @@ def apply_filter(img_input: Image.Image, filter_key: str, strength: float = 0.5)
     img = img_input.convert('RGB')
     handler = FILTER_HANDLERS.get(key, FILTER_HANDLERS['none'])
     return handler(img, strength)
+
+
+if __name__ == '__main__':
+    img = Image.open(r'wxcloudrun\static\img_thumbnail\filter_film_kodak_g200.jpg')
+    img = apply_lut(img, 1.0, 'cubes/Titanium_Cinematic_01.cube')
+    img.save(r'test_lut.jpg')

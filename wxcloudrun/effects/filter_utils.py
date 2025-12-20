@@ -2,6 +2,10 @@ from PIL import Image
 from pathlib import Path
 import numpy as np
 import time
+from .lut_utils import load_cube_lut, apply_cube_lut_float_rgb
+
+
+_PYLUT_LUT_CACHE = {}
 
 
 def clamp01(x: float) -> float:
@@ -161,26 +165,31 @@ def apply_vignette(arr_t: np.ndarray, s: float, inner: float = 0.2, outer: float
 
 
 def apply_lut(img: Image.Image, s: float, cube_rel_path: str) -> Image.Image:
-    import pylut
-
     base = img.convert('RGB')
     arr = np.array(base, dtype=np.float32) / 255.0
+    arr = np.clip(arr, 0.0, 1.0)
+    this_file = Path(__file__).resolve()
+    repo_root = this_file.parents[2]
+    lut_path = repo_root / cube_rel_path
+    lut = load_cube_lut(lut_path)
+    arr_lut = apply_cube_lut_float_rgb(arr, lut)
+    out = np.clip(arr * (1.0 - s) + arr_lut * s, 0.0, 1.0)
+    out_u8 = (out * 255.0 + 0.5).astype('uint8')
+    return Image.fromarray(out_u8, mode='RGB')
+
+def apply_lut_bug(img: Image.Image, s: float, cube_rel_path: str) -> Image.Image:
+    base = img.convert('RGB')
+    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = np.clip(arr, 0.0, 1.0)
     this_file = Path(__file__).resolve()
     repo_root = this_file.parents[2]
     lut_path = repo_root / cube_rel_path
     t0 = time.time()
-    lut = pylut.LUT.FromCubeFile(str(lut_path))
+    lut = load_cube_lut(lut_path)
     t1 = time.time()
     print(f"[apply_lut] loaded LUT '{lut_path.name}' in {t1 - t0:.3f}s")
 
-    h, w, _ = arr.shape
-    flat = arr.reshape(-1, 3)
-    out_list = []
-    for rgb in flat:
-        c = pylut.Color.FromFloatArray(rgb)
-        c2 = lut.ColorFromColor(c)
-        out_list.append(c2.ToFloatArray())
-    arr_lut = np.array(out_list, dtype=np.float32).reshape(h, w, 3)
+    arr_lut = apply_cube_lut_float_rgb(arr, lut)
     t3 = time.time()
     print(f"[apply_lut] remap done in {t3 - t1:.3f}s (total {t3 - t0:.3f}s so far)")
     out = np.clip(arr * (1.0 - s) + arr_lut * s, 0.0, 1.0)
@@ -189,8 +198,40 @@ def apply_lut(img: Image.Image, s: float, cube_rel_path: str) -> Image.Image:
     print(f"[apply_lut] blend/convert done in {t4 - t3:.3f}s (total {t4 - t0:.3f}s)")
     return Image.fromarray(out_u8, mode='RGB')
 
+def apply_pylut(img: Image.Image, s: float, cube_rel_path: str):
+    import pylut
+
+    base = img.convert('RGB')
+    arr = np.array(base, dtype=np.float32) / 255.0
+    arr = np.clip(arr, 0.0, 1.0)
+    this_file = Path(__file__).resolve()
+    repo_root = this_file.parents[2]
+    lut_path = repo_root / cube_rel_path
+
+    key = str(lut_path)
+    lut = _PYLUT_LUT_CACHE.get(key)
+    if lut is None:
+        lut = pylut.LUT.FromCubeFile(key)
+        _PYLUT_LUT_CACHE[key] = lut
+
+    h, w, _ = arr.shape
+    flat = arr.reshape(-1, 3)
+    out_flat = np.empty((flat.shape[0], 3), dtype=np.float32)
+    color_from_arr = pylut.Color.FromFloatArray
+    color_from_color = lut.ColorFromColor
+    for i, rgb in enumerate(flat):
+        c = color_from_arr(rgb)
+        c2 = color_from_color(c)
+        out_flat[i] = c2.ToFloatArray()
+    arr_lut = out_flat.reshape(h, w, 3)
+    out = np.clip(arr * (1.0 - s) + arr_lut * s, 0.0, 1.0)
+    out_u8 = (out * 255.0 + 0.5).astype('uint8')
+    return Image.fromarray(out_u8, mode='RGB')
 
 def make_lut_filter(cube_filename: str):
     def _f(img: Image.Image, strength: float) -> Image.Image:
         return apply_lut(img, clamp01(strength), f'cubes/{cube_filename}')
     return _f
+
+
+
