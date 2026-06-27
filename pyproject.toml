@@ -1,0 +1,29 @@
+[project]
+name = "image-border-extender-web"
+version = "0.1.0"
+description = "图片边框扩展 Web 应用（Flask + 本地部署）"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "click==8.0.3",
+    "Flask==2.0.2",
+    "Flask-SQLAlchemy==2.5.1",
+    "greenlet>=3.0.0",
+    "itsdangerous==2.0.1",
+    "Jinja2==3.0.3",
+    "MarkupSafe==2.0.1",
+    "PyMySQL==1.0.2",
+    "SQLAlchemy>=1.4.29,<2.0",
+    "Werkzeug==2.0.2",
+    "pillow",
+    "piexif",
+    "numpy",
+    "scikit-learn",
+    "requests",
+    "pylut",
+    "matplotlib",
+    "opencv-python",
+]
+
+[tool.uv]
+package = false
