@@ -1,9 +1,9 @@
 import os
 from PIL import Image
 
-from wxcloudrun.add_bd import apply_filter, AVAILABLE_FILTER_KEYS as FILTER_KEYS
-from wxcloudrun.add_bd import process_one_image, AVAILABLE_FORMAT_KEYS as FORMAT_KEYS
-from wxcloudrun.effects.filter_utils import apply_pylut
+from border_extender.add_bd import apply_filter, AVAILABLE_FILTER_KEYS as FILTER_KEYS
+from border_extender.add_bd import process_one_image, AVAILABLE_FORMAT_KEYS as FORMAT_KEYS
+from border_extender.effects.filter_utils import apply_pylut
 
 
 def ensure_dir(path: str):
@@ -71,7 +71,7 @@ def generate_logo_thumbnails(logos_dir='logos', out_dir='img_thumbnail'):
 
 def main():
     # Generate logo thumbnails first
-    out_dir = './wxcloudrun/static/img_thumbnail'
+    out_dir = './border_extender/static/img_thumbnail'
 
     print("\n=== Generating logo thumbnails ===")
     generate_logo_thumbnails('logos', out_dir)

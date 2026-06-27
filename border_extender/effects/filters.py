@@ -346,6 +346,6 @@ def apply_filter(img_input: Image.Image, filter_key: str, strength: float = 0.5)
 
 
 if __name__ == '__main__':
-    img = Image.open(r'wxcloudrun\static\img_thumbnail\filter_film_kodak_g200.jpg')
+    img = Image.open(r'border_extender\static\img_thumbnail\filter_film_kodak_g200.jpg')
     img = apply_lut(img, 1.0, 'cubes/Titanium_Cinematic_01.cube')
     img.save(r'test_lut.jpg')

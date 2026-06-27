@@ -1,6 +1,6 @@
 """
 本地批量图片处理脚本
-使用argparse传参，统一使用wxcloudrun.effects.formats中的process_one_image函数
+使用argparse传参，统一使用border_extender.effects.formats中的process_one_image函数
 """
 import argparse
 import os
@@ -9,14 +9,14 @@ from PIL import Image
 import sys
 
 # 使用统一的导入方式（与add_bd.py保持一致）
-from wxcloudrun.effects.formats import (
+from border_extender.effects.formats import (
     process_one_image as _effects_process_one_image,
     AVAILABLE_FORMAT_KEYS,
 )
 
 
 # 相机和镜头配置字典
-from wxcloudrun.assets_data import text_dict, logo_dict
+from border_extender.assets_data import text_dict, logo_dict
 
 
 def process_one_image(img_input, text, logo_file, *args, format='basic3', suppli_info='', 
@@ -96,10 +96,10 @@ def parse_arguments():
 
     # 必需参数
     parser.add_argument('--src', type=str, 
-                        default=r'F:\Image-border-extender本地图片目录\imgtoprocess',
+                        default=r'E:\Photos\边框本地文件夹\imgtoprocess',
                         help='源图片目录路径')
     parser.add_argument('--tgt', type=str,
-                        default=r'F:\Image-border-extender本地图片目录\imgdone',
+                        default=r'E:\Photos\边框本地文件夹\imgdone',
                         help='目标输出目录路径')
     
     # 图片处理参数

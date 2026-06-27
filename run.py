@@ -1,6 +1,6 @@
 # 创建应用实例
 import sys
-from wxcloudrun import app
+from border_extender import app
 
 # # local test
 # if len(sys.argv) < 3:

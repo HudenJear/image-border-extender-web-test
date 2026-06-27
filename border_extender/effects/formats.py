@@ -6,9 +6,9 @@ import os
 from PIL.ExifTags import TAGS
 
 # Import shared sizing, style and utils from core module to avoid duplication
-from wxcloudrun import add_bd as core
-from wxcloudrun.color_extract import extract_main_colors
-from wxcloudrun.assets_data import film_logs, logo_dict
+from border_extender import add_bd as core
+from border_extender.color_extract import extract_main_colors
+from border_extender.assets_data import film_logs, logo_dict
 
 __all__ = [
     'process_one_image',

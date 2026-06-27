@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from wxcloudrun import db
+from border_extender import db
 
 
 # 计数表

@@ -2,8 +2,8 @@ import logging
 
 from sqlalchemy.exc import OperationalError
 
-from wxcloudrun import db
-from wxcloudrun.model import Counters
+from border_extender import db
+from border_extender.model import Counters
 
 # 初始化日志
 logger = logging.getLogger('log')

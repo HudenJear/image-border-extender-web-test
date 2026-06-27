@@ -1,9 +1,9 @@
 from datetime import datetime
 from flask import render_template, request, send_file, url_for, after_this_request, send_from_directory
 from werkzeug.routing import BuildError
-from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.model import Counters
-from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
+from border_extender.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
+from border_extender.model import Counters
+from border_extender.response import make_succ_empty_response, make_succ_response, make_err_response
 from PIL import Image,ImageDraw,ImageFont,ImageOps
 from PIL.ExifTags import TAGS
 import piexif
@@ -115,7 +115,7 @@ def logo_film_list():
     logos_thumb_dir = os.path.join(_img_thumbnail_root(), 'logos-thumbnails')
     films_thumb_dir = os.path.join(_img_thumbnail_root(), 'films-thumbnails')
 
-    from wxcloudrun.assets_data import film_logs as _film_logs, all_logo_dict as _all_logo_dict, all_film_logo_dict as _all_film_logo_dict, filter_thumbnail_dict as _filter_thumbnail_dict
+    from border_extender.assets_data import film_logs as _film_logs, all_logo_dict as _all_logo_dict, all_film_logo_dict as _all_film_logo_dict, filter_thumbnail_dict as _filter_thumbnail_dict
 
     # logos：以 all_logo_dict 为准，确保返回“全部logo列表”
     logos = []
@@ -326,7 +326,7 @@ def image_upload():
     """
     # 获取请求体参数
     # 确保 tempimage 目录存在
-    # os.makedirs('wxcloudrun/static/'+temp_image_dir, exist_ok=True)
+    # os.makedirs('border_extender/static/'+temp_image_dir, exist_ok=True)
     os.makedirs(os.path.join(app.static_folder, temp_image_dir), exist_ok=True)
 
     # params = request.get_json()
